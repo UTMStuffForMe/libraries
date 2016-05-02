@@ -63,13 +63,19 @@ TypeGraphManager::TypeGraphManager(int n_vertices, int n_types,
 
     random_shuffle(candidates.begin(), candidates.end());
 
+
+    set<edge> edges_set;
     // Add as many edges as possible
     for (edge c : candidates) {
-        if (!intersectsExistingEdge(c, agentLocs)) {
-            edges.push_back(c);
-            edges.push_back(std::make_pair(c.second, c.first));
+        if (!intersectsExistingEdge(c, agentLocs,edges_set)) {
+            edges_set.insert(c);
+            edges_set.insert(std::make_pair(c.second, c.first));
+            //edges.push_back(c);
+            //edges.push_back(std::make_pair(c.second, c.first));
         }
     }
+    edges = vector<edge>(edges_set.size());
+    copy(edges_set.begin(), edges_set.end(), edges.begin());
 
     // create a RAGS object which generates a graph for searching over
     rags_map = new RAGS(agentLocs, edges);
@@ -82,8 +88,8 @@ TypeGraphManager::TypeGraphManager(int n_vertices, int n_types,
 }
 
 
-bool TypeGraphManager::intersectsExistingEdge(edge candidate, vector<XY> locs) {
-    for (edge e : edges) {
+bool TypeGraphManager::intersectsExistingEdge(edge candidate, vector<XY> locs, set<edge> edges_set) {
+    for (edge e : edges_set) {
         line_segment l1, l2;
         l1 = line_segment(locs[e.first], locs[e.second]);
         l2 = line_segment(locs[candidate.first], locs[candidate.second]);
