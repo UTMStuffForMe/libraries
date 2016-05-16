@@ -84,6 +84,7 @@ class SectorAgentManager : public IAgentManager {
             }
         }
     }
+
     void detect_conflicts() {
         // all links going TO the sector are contribute to its conflict
         for (size_t s = 0; s < sectors.size(); s++) {

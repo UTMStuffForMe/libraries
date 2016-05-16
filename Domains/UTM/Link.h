@@ -82,7 +82,7 @@ class LinkAgentManager : public IAgentManager {
     * Adds to the delay for the agent assigned to that link.
     * Agent reward metrics and link function are kept separate.
     */
-    void add_delay(UAV* u);
+    virtual void add_delay(UAV* u);
 
     void add_downstream_delay_counterfactual(UAV* u);
 

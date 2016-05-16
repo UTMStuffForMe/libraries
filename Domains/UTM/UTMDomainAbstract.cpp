@@ -20,7 +20,7 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
 
     // Airspace construction
     int n_sectors;
-    std::string domain_dir = filehandler->createDomainDirectory();
+    std::string domain_dir = filehandler->createDomainDirectory(); // NOTE: MODIFY THIS TO LOOP OVER THE DOMAIN FILES...
     ifstream edgefile(domain_dir + "edges.csv");
     bool fileExists = edgefile.good();
     edgefile.close();
