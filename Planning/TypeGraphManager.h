@@ -58,7 +58,7 @@ class TypeGraphManager {
 
     // Helpers/translators
     bool intersectsExistingEdge(edge candidate,
-        std::vector<easymath::XY> agentLocs);
+        std::vector<easymath::XY> agentLocs,std::set<edge> edges_set);
     bool fullyConnected(std::vector<easymath::XY> agentLocs);
     void initializeTypeLookupAndDirections(std::vector<easymath::XY> agentLocs);
 };

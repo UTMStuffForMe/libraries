@@ -139,6 +139,7 @@ void UTMDomainAbstract::incrementUAVPath() {
             agents->add_delay(u);
 
             // Add 1 to the sector that the UAV is trying to move from
+            int n = u->nextSectorID();
             numUAVsAtSector[u->nextSectorID()]++;
 
             // counterfactuals
@@ -248,18 +249,13 @@ void UTMDomainAbstract::logStep() {
     if (params->_agent_defn_mode == UTMModes::AgentDefinition::SECTOR
         || params->_agent_defn_mode == UTMModes::AgentDefinition::LINK) {
         matrix1d numUAVsOnLinks(links.size(), 0);
-        // int i = 0;  // TERRIBLE FORM
-        // for (Link* l : links) {
         for (size_t i = 0; i < links.size(); i++) {
             numUAVsOnLinks[i] = links[i]->traffic[0].size();
         }
         linkUAVs.push_back(numUAVsOnLinks);
-        // numUAVsAtSector is a private member because hacky coding
+
         sectorUAVs.push_back(numUAVsAtSector);
-        for (size_t i = 0; i < sectors.size(); i++) {
-            // Clear the UAVs
-            numUAVsAtSector[i] = 0.0;
-        }
+        numUAVsAtSector = zeros(sectors.size());
     }
 }
 

@@ -110,6 +110,7 @@ void UAV::planAbstractPath() {
 
     if (high_path.size() == 1) {
         printf("Path not found!");
+        system("pause");
     }
 
     if (high_path_prev != high_path) {
