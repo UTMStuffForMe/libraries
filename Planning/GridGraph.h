@@ -11,6 +11,7 @@
 
 // from stl
 #include <fstream>
+#include <float.h>
 
 // from libraries
 #include "../../libraries/Math/easymath.h"
