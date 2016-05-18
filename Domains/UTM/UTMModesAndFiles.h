@@ -3,7 +3,7 @@
 #define DOMAINS_UTM_UTMMODESANDFILES_H_
 
 #include <string>
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
 
 #include "../IDomainStateful.h"
 

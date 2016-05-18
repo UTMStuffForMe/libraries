@@ -186,7 +186,7 @@ int TypeGraphManager::getMembership(easymath::XY pt) {
 }
 
 XY TypeGraphManager::getLocation(int sectorID) {
-    return Graph_highlevel[0]->locations[sectorID];
+    return Graph_highlevel[0]->get_vertex_loc(sectorID);
 }
 
 vector<TypeGraphManager::edge> TypeGraphManager::getEdges() {
@@ -194,7 +194,7 @@ vector<TypeGraphManager::edge> TypeGraphManager::getEdges() {
 }
 
 int TypeGraphManager::getNVertices() {
-    return Graph_highlevel[0]->locations.size();
+    return Graph_highlevel[0]->get_n_vertices();
 }
 
 void TypeGraphManager::initializeTypeLookupAndDirections(vector<XY> agentLocs) {

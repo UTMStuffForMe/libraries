@@ -15,6 +15,7 @@
 
 // from libraries
 #include "../../libraries/Math/easymath.h"
+#include "Graph.h"
 
 
 
@@ -74,7 +75,7 @@ class manhattan_heuristic :
 };
 
 
-class GridGraph {
+class GridGraph: public Graph {
  public:
     ~GridGraph() {}
     // Exception thrown when the goal vertex is found
