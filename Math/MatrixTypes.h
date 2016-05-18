@@ -6,6 +6,8 @@
 //! A file for containing matrix types.
 
 #include <vector>
+#include <algorithm>
+
 typedef std::vector<double> matrix1d;
 typedef std::vector<matrix1d> matrix2d;
 typedef std::vector<matrix2d> matrix3d;
@@ -92,8 +94,12 @@ std::vector<T> set_negative_zero(const std::vector<T> &m) {
 }
 
 template<typename T>
-size_t get_max_index(std::vector<T> myvector){
-    std::vector<T>:iterator el = std::max_element(v.begin(), v.end());
+size_t get_max_index(std::vector<T> v){
+    #ifndef _WIN32
+    typename std::vector<T>::iterator el = std::max_element(v.begin(), v.end());
+    #else
+    std::vector<T>::iterator el = std::max_element(v.begin(), v.end());
+    #endif
     return distance(v.begin(), el);
 }
 

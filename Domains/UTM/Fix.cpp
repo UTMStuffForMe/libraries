@@ -11,7 +11,6 @@ using easymath::XY;
 using easymath::rand;
 
 Fix::Fix(XY loc, int ID_set, TypeGraphManager* highGraph,
-    // vector<Fix*>* fixes, 
     vector<XY> dest_locs,
     UTMModes* params,
     map<edge, int> *linkIDs) :

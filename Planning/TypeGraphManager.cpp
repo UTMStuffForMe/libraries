@@ -50,23 +50,32 @@ TypeGraphManager::TypeGraphManager(int n_vertices, int n_types,
     vector<XY> agentLocs(agent_loc_set.size());
     copy(agent_loc_set.begin(), agent_loc_set.end(), agentLocs.begin());
 
-    vector<edge > candidates;
+    set<edge> candidates_set;
     for (size_t i = 0; i < agentLocs.size(); i++) {
         for (size_t j = 0; j < agentLocs.size(); j++) {
             if (i == j)
                 continue;
-            candidates.push_back(make_pair(i, j));
+            candidates_set.insert(make_pair(i, j));
         }
     }
+    vector<edge > candidates(candidates_set.size());
+    copy(candidates_set.begin(), candidates_set.end(), candidates.begin());
+
     random_shuffle(candidates.begin(), candidates.end());
 
+
+    set<edge> edges_set;
     // Add as many edges as possible
     for (edge c : candidates) {
-        if (!intersectsExistingEdge(c, agentLocs)) {
-            edges.push_back(c);
-            edges.push_back(std::make_pair(c.second, c.first));
+        if (!intersectsExistingEdge(c, agentLocs,edges_set)) {
+            edges_set.insert(c);
+            edges_set.insert(std::make_pair(c.second, c.first));
+            //edges.push_back(c);
+            //edges.push_back(std::make_pair(c.second, c.first));
         }
     }
+    edges = vector<edge>(edges_set.size());
+    copy(edges_set.begin(), edges_set.end(), edges.begin());
 
     // create a RAGS object which generates a graph for searching over
     rags_map = new RAGS(agentLocs, edges);
@@ -79,8 +88,8 @@ TypeGraphManager::TypeGraphManager(int n_vertices, int n_types,
 }
 
 
-bool TypeGraphManager::intersectsExistingEdge(edge candidate, vector<XY> locs) {
-    for (edge e : edges) {
+bool TypeGraphManager::intersectsExistingEdge(edge candidate, vector<XY> locs, set<edge> edges_set) {
+    for (edge e : edges_set) {
         line_segment l1, l2;
         l1 = line_segment(locs[e.first], locs[e.second]);
         l2 = line_segment(locs[candidate.first], locs[candidate.second]);
@@ -177,7 +186,7 @@ int TypeGraphManager::getMembership(easymath::XY pt) {
 }
 
 XY TypeGraphManager::getLocation(int sectorID) {
-    return Graph_highlevel[0]->locations[sectorID];
+    return Graph_highlevel[0]->get_vertex_loc(sectorID);
 }
 
 vector<TypeGraphManager::edge> TypeGraphManager::getEdges() {
@@ -185,7 +194,7 @@ vector<TypeGraphManager::edge> TypeGraphManager::getEdges() {
 }
 
 int TypeGraphManager::getNVertices() {
-    return Graph_highlevel[0]->locations.size();
+    return Graph_highlevel[0]->get_n_vertices();
 }
 
 void TypeGraphManager::initializeTypeLookupAndDirections(vector<XY> agentLocs) {

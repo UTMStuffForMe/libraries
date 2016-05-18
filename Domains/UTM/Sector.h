@@ -6,18 +6,23 @@
 #include "Link.h"
 #include <vector>
 #include <map>
+#include "Fix.h"
 
 class Sector {
  public:
-    // An area of space that contains some fixes
-    Sector(easymath::XY xy, int sectorIDset, std::vector<int> connections);
-    Sector() : ID(0) {}
+     typedef std::pair<int, int> edge;
+    // An area of airspace to control
+    Sector(easymath::XY xy, int sectorIDset, std::vector<int> connections,
+        std::vector<easymath::XY> dest_locs, TypeGraphManager* highGraph,
+        UTMModes* params, std::map<edge, int>* linkIDs);
+    //Sector() : ID(0) {}
     ~Sector() {}
 
     // Location properties
     const int ID;  // the identifier for this sector
     const std::vector<int> connections;
     const easymath::XY xy;  // sector center
+    Fix generation_pt;
 };
 
 //! Class that manages sectors as agents
@@ -79,6 +84,7 @@ class SectorAgentManager : public IAgentManager {
             }
         }
     }
+
     void detect_conflicts() {
         // all links going TO the sector are contribute to its conflict
         for (size_t s = 0; s < sectors.size(); s++) {

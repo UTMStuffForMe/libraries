@@ -2,8 +2,12 @@
 #include "Sector.h"
 #include <vector>
 
-Sector::Sector(easymath::XY xy, int sectorIDSet, std::vector<int> connections) :
-    xy(xy),
-    ID(sectorIDSet),
-    connections(connections) {
+using easymath::XY;
+using std::vector;
+
+Sector::Sector(XY xy, int sectorIDSet, vector<int> connections,
+    vector<XY> dest_locs, TypeGraphManager* highGraph,
+    UTMModes* params, std::map<edge, int>* linkIDs) :
+    xy(xy), ID(sectorIDSet), connections(connections),
+    generation_pt(Fix(xy, sectorIDSet, highGraph, dest_locs, params, linkIDs)) {
 }

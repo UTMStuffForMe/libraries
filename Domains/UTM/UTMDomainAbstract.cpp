@@ -20,7 +20,7 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
 
     // Airspace construction
     int n_sectors;
-    std::string domain_dir = filehandler->createDomainDirectory();
+    std::string domain_dir = filehandler->createDomainDirectory(); // NOTE: MODIFY THIS TO LOOP OVER THE DOMAIN FILES...
     ifstream edgefile(domain_dir + "edges.csv");
     bool fileExists = edgefile.good();
     edgefile.close();
@@ -61,7 +61,7 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
     vector<XY> sector_locs;
     for (int i = 0; i < n_sectors; i++) {
         sector_locs.push_back(highGraph->getLocation(i));
-        Sector* s = new Sector(sector_locs.back(), i, connections[i]);
+        Sector* s = new Sector(sector_locs.back(), i, connections[i],sector_locs,highGraph,params,linkIDs);
         sectors.push_back(s);
         numUAVsAtSector.push_back(0.0);  // Brandon change
     }
@@ -73,9 +73,9 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
 
     // Fix construction
     for (Sector* s : sectors)
-        fixes.push_back(new Fix(s->xy, s->ID, highGraph,
+        s->generation_pt = Fix(s->xy, s->ID, highGraph,
             sector_locs,
-            params, linkIDs));
+            params, linkIDs);
 }
 
 string UTMDomainAbstract::createExperimentDirectory() {
@@ -93,9 +93,6 @@ UTMDomainAbstract::~UTMDomainAbstract(void) {
 
     for (Sector* s : sectors)
         delete s;
-
-    for (Fix* f : fixes)
-        delete f;
 
     for (UAV* u : UAVs)
         delete u;
@@ -142,6 +139,7 @@ void UTMDomainAbstract::incrementUAVPath() {
             agents->add_delay(u);
 
             // Add 1 to the sector that the UAV is trying to move from
+            int n = u->nextSectorID();
             numUAVsAtSector[u->nextSectorID()]++;
 
             // counterfactuals
@@ -251,18 +249,13 @@ void UTMDomainAbstract::logStep() {
     if (params->_agent_defn_mode == UTMModes::AgentDefinition::SECTOR
         || params->_agent_defn_mode == UTMModes::AgentDefinition::LINK) {
         matrix1d numUAVsOnLinks(links.size(), 0);
-        // int i = 0;  // TERRIBLE FORM
-        // for (Link* l : links) {
         for (size_t i = 0; i < links.size(); i++) {
             numUAVsOnLinks[i] = links[i]->traffic[0].size();
         }
         linkUAVs.push_back(numUAVsOnLinks);
-        // numUAVsAtSector is a private member because hacky coding
+
         sectorUAVs.push_back(numUAVsAtSector);
-        for (size_t i = 0; i < sectors.size(); i++) {
-            // Clear the UAVs
-            numUAVsAtSector[i] = 0.0;
-        }
+        numUAVsAtSector = zeros(sectors.size());
     }
 }
 
@@ -480,8 +473,8 @@ void UTMDomainAbstract::absorbUAVTraffic() {
 
 void UTMDomainAbstract::getNewUAVTraffic() {
     // Generates (with some probability) plane traffic for each sector
-    for (Fix* f : fixes) {
-        list<UAV*> new_UAVs = f->generateTraffic(*step);
+    for (Sector* s:sectors) {
+        list<UAV*> new_UAVs = s->generation_pt.generateTraffic(*step);
         for (UAV* u : new_UAVs) {
             UAVs.push_back(u);
             links.at(u->cur_link_ID)->add(u);

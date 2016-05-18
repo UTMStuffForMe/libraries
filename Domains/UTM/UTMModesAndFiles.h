@@ -3,33 +3,30 @@
 #define DOMAINS_UTM_UTMMODESANDFILES_H_
 
 #include <string>
-
-#ifdef _WIN32
-#include <direct.h>
-#else
-#include <sys/stat.h>
-#include <stdexcept>
-#endif
+#include <boost/filesystem/operations.hpp>
 
 #include "../IDomainStateful.h"
 
 class UTMModes : public IDomainStatefulParameters {
- public:
-     UTMModes() :
-         // Mode defaults
-         _reward_mode(UTMModes::RewardMode::GLOBAL),
-         _airspace_mode(UTMModes::AirspaceMode::SAVED),
-         _traffic_mode(UTMModes::TrafficMode::DETERMINISTIC),
-         _agent_defn_mode(UTMModes::AgentDefinition::LINK),
-         _reward_type_mode(UTMModes::RewardType::DELAY),
-         _search_type_mode(UTMModes::SearchDefinition::ASTAR),
-         // Constants defaults
-         square_reward(false),
-         n_sectors(20),
-         alpha(1.0)
+public:
+    UTMModes() :
+        // Mode defaults
+        //_reward_mode(UTMModes::RewardMode::GLOBAL),
+        _reward_mode(UTMModes::RewardMode::DIFFERENCE_AVG),
+        _airspace_mode(UTMModes::AirspaceMode::SAVED),
+        _traffic_mode(UTMModes::TrafficMode::DETERMINISTIC),
+        _agent_defn_mode(UTMModes::AgentDefinition::LINK),
+        _reward_type_mode(UTMModes::RewardType::DELAY),
+        _search_type_mode(UTMModes::SearchDefinition::ASTAR),
+        // Constants defaults
+        square_reward(false),
+        n_sectors(20),
+        alpha(1000.0),
+        domain_num(-1)
     {};
     ~UTMModes() {}
 
+    int domain_num;
     double alpha; // amount that a neural network impacts the system
 
     // OPTION HERE FOR ONE AGENT PER LINK
@@ -143,88 +140,71 @@ class UTMModes : public IDomainStatefulParameters {
 
 
 class UTMFileNames {
- public:
-    explicit UTMFileNames(UTMModes* modes_set = NULL) :
-        modes(modes_set) {
-        if (modes_set == NULL) {
-            modes = new UTMModes();  // Uses the default
-            kill_modes = true;
-        } else {
-            kill_modes = false;
+
+    bool numbered_domain;
+    std::string domain_num;
+    std::string gen_rate;
+    std::string n_steps;
+    std::string n_types;
+    std::string n_sectors;
+    std::string reward_mode;
+    std::string alpha;
+    std::string agent_defn;
+
+public:
+
+    explicit UTMFileNames(UTMModes* m) :
+        numbered_domain(m->domain_num >= 0),
+        domain_num(std::to_string(m->domain_num)),
+        gen_rate(std::to_string(m->get_gen_rate())),
+        n_steps(std::to_string(m->get_n_steps())),
+        n_types(std::to_string(m->get_n_types())),
+        n_sectors(std::to_string(m->get_n_sectors())),
+        reward_mode(m->getRewardModeName()),
+        alpha(std::to_string(static_cast<int>(m->alpha)))
+    {
+        switch (m->_agent_defn_mode) {
+        case UTMModes::AgentDefinition::LINK:
+            agent_defn = "Link";
+            break;
+        case UTMModes::AgentDefinition::SECTOR:
+            agent_defn = "Sector";
+            break;
+        default:
+            agent_defn = "Unknown";
+            break;
         }
     }
-    ~UTMFileNames() {
-        if (kill_modes)
-            delete modes;
-    }
-    bool kill_modes;
-    UTMModes* modes;
+    ~UTMFileNames() {}
 
     std::string createDomainDirectory() {
-        // Saves the map information
-        std::string DOMAIN_FOLDER = "Domains/";
-        std::string SECTOR_FOLDER = DOMAIN_FOLDER +
-            std::to_string(modes->get_n_sectors()) + "_Sectors/";
-#ifdef _WIN32
-        _mkdir(DOMAIN_FOLDER.c_str());
-        _mkdir(SECTOR_FOLDER.c_str());
-#else
-        mkdir(DOMAIN_FOLDER.c_str(), ACCESSPERMS);
-        mkdir(SECTOR_FOLDER.c_str(), ACCESSPERMS);
-#endif
-        return SECTOR_FOLDER;
+        std::string dir_path = "Domains/" + n_sectors + "_Sectors/";
+        if (numbered_domain) dir_path += domain_num + "/";
+
+        boost::filesystem::path dir(dir_path);
+        boost::filesystem::create_directories(dir);
+        return dir_path;
     }
 
     std::string createExperimentDirectory() {
-        std::string EXPERIMENT_FOLDER = "Experiments/";
         // Creates a directory for the experiment and returns that as a string
-        // DIRECTORY HIERARCHY: EXPERIMENTS/NAGENTS/TRAFFIC/CAPACITY/REWARDTYPE/
-        // typehandling(file name).csv assumed
-        std::string AGENTS_FOLDER;
 
-        switch (modes->_agent_defn_mode) {
-        case UTMModes::AgentDefinition::LINK:
-            AGENTS_FOLDER = EXPERIMENT_FOLDER + "Link_agents/";
-            break;
-        case UTMModes::AgentDefinition::SECTOR:
-            AGENTS_FOLDER = EXPERIMENT_FOLDER + "Sector_agents/";
-            break;
-        default:
-            AGENTS_FOLDER = EXPERIMENT_FOLDER + "Unknown/";
-            break;
-        }
+        std::string dir_path = "Experiments/"
+            + agent_defn + "_Agents/"
+            + n_sectors + "_Sectors/"
+            + "Rate_" + gen_rate + "/"
+            + n_steps + "_Steps/"
+            + n_types + "_Types/"
+            + reward_mode + "_Reward/"
+            + alpha + "_alpha/";
 
-        std::string SECTOR_FOLDER = AGENTS_FOLDER +
-            std::to_string(modes->get_n_sectors()) + "_Sectors/";
-        std::string TRAFFIC_FOLDER = SECTOR_FOLDER +
-            "Rate_" + std::to_string(modes->get_gen_rate()) + "/";
-        std::string STEPS_FOLDER = TRAFFIC_FOLDER +
-            std::to_string(modes->get_n_steps()) + "_Steps/";
-        std::string TYPES_FOLDER = STEPS_FOLDER +
-            std::to_string(modes->get_n_types()) + "_Types/";
-        std::string REWARD_FOLDER = TYPES_FOLDER +
-            modes->getRewardModeName() + "_Reward/";
-        std::string ALPHA_FOLDER = REWARD_FOLDER +
-            std::to_string(static_cast<int>(modes->alpha)) + "_alpha/";
-#ifdef _WIN32
-        _mkdir(EXPERIMENT_FOLDER.c_str());
-        _mkdir(AGENTS_FOLDER.c_str());
-        _mkdir(SECTOR_FOLDER.c_str());
-        _mkdir(TRAFFIC_FOLDER.c_str());
-        _mkdir(STEPS_FOLDER.c_str());
-        _mkdir(TYPES_FOLDER.c_str());
-        _mkdir(REWARD_FOLDER.c_str());
-        _mkdir(ALPHA_FOLDER.c_str());
-#else
-        mkdir(EXPERIMENT_FOLDER.c_str(), ACCESSPERMS);
-        mkdir(AGENTS_FOLDER.c_str(), ACCESSPERMS);
-        mkdir(SECTOR_FOLDER.c_str(), ACCESSPERMS);
-        mkdir(TRAFFIC_FOLDER.c_str(), ACCESSPERMS);
-        mkdir(STEPS_FOLDER.c_str(), ACCESSPERMS);
-        mkdir(TYPES_FOLDER.c_str(), ACCESSPERMS);
-        mkdir(REWARD_FOLDER.c_str(), ACCESSPERMS);
-#endif
-        return ALPHA_FOLDER;  // returns the full directory path just generated
+            if (numbered_domain) dir_path += domain_num + "/";
+
+            // Create new directory
+            boost::filesystem::path dir(dir_path);
+            boost::filesystem::create_directories(dir);
+
+            return dir_path;
     }
 };
 #endif  // DOMAINS_UTM_UTMMODESANDFILES_H_

@@ -10,8 +10,8 @@ using easymath::zeros;
 using std::list;
 
 UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
-    UTMDomainAbstract(params_set),
-    fix_locs(FileIn::read_pairs<XY>("agent_map/fixes.csv")) {
+    UTMDomainAbstract(params_set){
+    //fix_locs(FileIn::read_pairs<XY>("agent_map/fixes.csv")) {
     // Add internal link IDs to the end of existing linkIDs
     // (important for internal travel)
     /*int cur_edge_num = linkIDs->size();
@@ -26,19 +26,23 @@ UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
     // Planning
     lowGraph = new SectorGraphManager(membership_map, highGraph->getEdges());
 
-    // initialize fixes
-    fixes.clear();
-
     // Get link IDs for fix generation
-    for (size_t i = 0; i < fix_locs.size(); i++) {
-        fixes.push_back(new FixDetail(fix_locs[i], i, highGraph, lowGraph,
-            //&fixes, 
-            fix_locs,
-            params, linkIDs));
+    // TODO: generate a fix somewhere in the airspace -- aim for the center, if not available pick random
+    //for (size_t i = 0; i < fix_locs.size(); i++) {
+    //    fixes.push_back(new FixDetail(fix_locs[i], i, highGraph, lowGraph,
+    //        //&fixes, 
+    //        fix_locs,
+    //        params, linkIDs));
+    //}
+    vector<XY> sector_locs(sectors.size());
+    for (int i = 0; i < sectors.size(); i++) {
+        sector_locs[i] = sectors[i]->xy;
     }
-}
+    for (Sector* s : sectors) {
+        s->generation_pt = FixDetail(s->xy, s->ID, highGraph, lowGraph, sector_locs, params, linkIDs);
+    }
 
-void UTMDomainDetail::loadMaps() {
+    // NOTE: MAKE A 'SECTORDETAIL'?
 }
 
 UTMDomainDetail::~UTMDomainDetail(void) {
@@ -122,7 +126,7 @@ void UTMDomainDetail::reset() {
 }
 
 
-void UTMDomainDetail::exportLog(std::string fid, double G) {
+void UTMDomainDetail::exportLog(std::string fid, double ) {
     static int calls = 0;
     calls++;
 }
