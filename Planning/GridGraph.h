@@ -98,10 +98,10 @@ class GridGraph {
     };
 
     // CREATION FUNCTIONS
-    GridGraph() :
+    /*GridGraph() :
         m_grid(create_grid(0, 0)), m_barrier_grid(create_barrier_grid()) {}
     GridGraph(std::size_t x, std::size_t y) :
-        m_grid(create_grid(x, y)), m_barrier_grid(create_barrier_grid()) {}
+        m_grid(create_grid(x, y)), m_barrier_grid(create_barrier_grid()) {}*/
 
     explicit GridGraph(mt::barrier_grid obstacle_map) :
         m_grid(create_grid(obstacle_map.size(), obstacle_map[0].size())),
