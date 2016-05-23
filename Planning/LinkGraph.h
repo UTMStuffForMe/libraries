@@ -15,46 +15,11 @@
 // library includes
 #include "../Math/easymath.h"
 #include "../FileIO/FileOut.h"
-
-typedef double cost;
-
-// euclidean distance heuristic
-template <class Graph, class CostType>
-class distance_heuristic : public boost::astar_heuristic<Graph, CostType> {
- public:
-    typedef std::vector<easymath::XY> LocMap;
-    typedef typename boost::graph_traits<Graph>::vertex_descriptor Vertex;
-    distance_heuristic(LocMap locations, Vertex goal) :
-        m_location(locations), m_goal(goal)
-    {};
-    CostType operator()(Vertex u) {
-        return CostType(easymath::euclidean_distance(m_location[u],
-            m_location[m_goal]));
-    }
- private:
-    LocMap m_location;
-    Vertex m_goal;
-};
-
-
-struct found_goal {};  // exception for termination
-
-// visitor that terminates when we find the goal
-template <class Vertex>
-class astar_goal_visitor : public boost::default_astar_visitor {
- public:
-    explicit astar_goal_visitor(Vertex goal) : m_goal(goal) {}
-    template <class Graph>
-    void examine_vertex(Vertex u, Graph& ) {
-        if (u == m_goal)
-            throw found_goal();
-    }
- private:
-    Vertex m_goal;
-};
+#include "Planning.h"
 
 class LinkGraph {
  private:
+    typedef double cost;
     typedef boost::adjacency_list
         <boost::listS,      // edge container
         boost::vecS,        // vertex container
@@ -63,7 +28,7 @@ class LinkGraph {
         boost::property<boost::edge_weight_t, cost> > mygraph_t;
     // Note: m_edges is not populated
     // vertex is an int: corresponds to number in the locations list
-    typedef mygraph_t::vertex_descriptor vertex;
+    typedef mygraph_t::vertex_descriptor vertex_descriptor;
     typedef mygraph_t::edge_descriptor edge_descriptor;
     typedef mygraph_t::vertex_iterator vertex_iterator;
     typedef std::pair<int, int> edge;
@@ -72,18 +37,37 @@ class LinkGraph {
     matrix1d saved_weights;  // for blocking and unblocking sectors
     mygraph_t g;
     std::vector<easymath::XY> locations;
+    std::map<easymath::XY, int> loc2mem;  // maps location to membership
 
- public:
-    LinkGraph(std::vector<easymath::XY> locations_set,
-        const std::vector<edge> &edge_array);
-    ~LinkGraph(void) {}
-    const size_t get_n_vertices();
-    easymath::XY get_vertex_loc(int vertexID);
     void blockVertex(int vertexID);
     void unblockVertex();
-    void setWeights(matrix1d weights);
-    matrix1d getWeights();
-    std::list<int> astar(int start, int goal);
-    void print_graph_to_file(std::string file_path);
+    bool fully_connected(); // Tests whether the graph is fully connected
+    bool intersects_existing_edge(edge candidate);
+
+
+ public:
+    LinkGraph(std::vector<easymath::XY> locations_set, const std::vector<edge> &edge_array);
+    LinkGraph(size_t n_vertices, size_t xdim, size_t ydim);
+    ~LinkGraph(void) {}
+
+
+    //! Accessor functions
+    const size_t get_n_vertices() { return locations.size(); }
+    const size_t get_n_edges() { return num_edges(g); }
+    const easymath::XY get_vertex_loc(int vID) { return locations.at(vID); };
+    const int get_membership(easymath::XY pt) { return loc2mem.at(pt); };
+    const matrix1d get_weights();
+    const std::vector<edge> get_edges();
+    const std::vector<easymath::XY> get_locations() { return locations; };
+    void set_weights(matrix1d weights);
+
+    const int get_direction(int m1, int m2);
+
+    //! Main search algorithm
+    //std::list<int> astar(int start, int goal);
+    //std::list<int> rags(int start, int goal);
+
+    //! Printout
+    void print_graph(std::string file_path);
 };
 #endif  // PLANNING_LINKGRAPH_H_

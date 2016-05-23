@@ -103,6 +103,20 @@ size_t get_max_index(std::vector<T> v){
     return distance(v.begin(), el);
 }
 
+template <typename T>
+std::vector<std::vector<bool> > operator<
+(const std::vector<std::vector<T> >& lhs, const double rhs) {
+    size_t m = lhs.size();
+    size_t n = lhs[0].size();
+    std::vector<std::vector<bool> > M(m, std::vector<bool>(n));
+    for (size_t i = 0; i < m; i++) {
+        for (size_t j = 0; j < n; j++) {
+            M[i][j] = lhs[i][j] < rhs;
+        }
+    }
+    return M;
+}
+
 double normalize(double val, double min, double max);
 
 void zero(matrix2d * m);

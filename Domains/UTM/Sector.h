@@ -13,7 +13,7 @@ class Sector {
      typedef std::pair<int, int> edge;
     // An area of airspace to control
     Sector(easymath::XY xy, int sectorIDset, std::vector<int> connections,
-        std::vector<easymath::XY> dest_locs, TypeGraphManager* highGraph,
+        std::vector<easymath::XY> dest_locs, MultiGraph<LinkGraph> highGraph,
         UTMModes* params, std::map<edge, int>* linkIDs);
     //Sector() : ID(0) {}
     ~Sector() {}
@@ -64,7 +64,7 @@ class SectorAgentManager : public IAgentManager {
         // double tt = links.at(u->next_link_ID)->predicted_traversal_time()[0];
         // printf("at link %i: %fs to wait ", u->next_link_ID,tt);
         // system("pause");
-        metrics.at(u->curSectorID()).local[u->type_ID]++;
+        metrics.at(u->curSectorID()).local[u->get_type()]++;
     }
     void add_downstream_delay_counterfactual(UAV* u) {
         // remove the effects of the UAV for the counterfactual..
@@ -76,8 +76,8 @@ class SectorAgentManager : public IAgentManager {
             exit(1);
         } else {
             for (size_t i = 0; i < metrics.size(); i++) {
-                if (u->sectors_touched.count(i) == 0) {
-                    metrics[i].G_minus_downstream[u->type_ID]++;
+                if (!u->sector_touched(i)) {
+                    metrics[i].G_minus_downstream[u->get_type()]++;
                 } else {
                     continue;
                 }

@@ -32,7 +32,7 @@ matrix1d Link::predicted_traversal_time() {
         // Collect wait times on all UAVs ON the link
         matrix1d waits;
         for (UAV* u : traffic[i]) {
-            waits.push_back(u->t);
+            waits.push_back(u->get_wait());
         }
 
         // Sort by wait (descending)
@@ -59,17 +59,15 @@ void Link::move_from(UAV* u, Link* l) {
 }
 
 void Link::add(UAV* u) {
-    u->t = time;
-    traffic.at(size_t(u->type_ID)).push_back(u);
-    u->cur_link_ID = ID;
-    u->mem = source;
+    u->set_wait(time);
+    traffic.at(u->get_type()).push_back(u);
+    u->set_cur_link_ID(ID);
+    u->set_cur_sector_ID(source);
 }
 
 
 void Link::remove(UAV* u) {
-    traffic[size_t(u->type_ID)].erase(
-        std::find(traffic[size_t(u->type_ID)].begin(),
-            traffic[size_t(u->type_ID)].end(), u));
+    easystl::remove_element(traffic[u->get_type()], u);
 }
 
 void Link::reset() {
@@ -96,7 +94,7 @@ matrix2d LinkAgentManager::actions2weights(matrix2d agent_actions) {
 }
 
 void LinkAgentManager::add_delay(UAV* u) {
-    metrics.at(u->cur_link_ID).local[size_t(u->type_ID)]++;
+    metrics.at(u->curLinkID()).local[u->get_type()]++;
 }
 
 void LinkAgentManager::add_downstream_delay_counterfactual(UAV* u) {
@@ -109,8 +107,8 @@ void LinkAgentManager::add_downstream_delay_counterfactual(UAV* u) {
         exit(1);
     } else {
         for (size_t i = 0; i < metrics.size(); i++) {
-            if (u->links_touched.count(i) == 0) {
-                metrics[i].G_minus_downstream[size_t(u->type_ID)]++;
+            if (!u->link_touched(i)) {
+                metrics[i].G_minus_downstream[u->get_type()]++;
             } else {
                 continue;
             }

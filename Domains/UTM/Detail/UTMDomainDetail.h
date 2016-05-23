@@ -11,9 +11,9 @@
 #include <string>
 
 // Library includes
-#include "UTMDomainAbstract.h"
-#include "../../Planning/SectorGraphManager.h"
-#include "../../FileIO/FileIn.h"
+#include "../../../FileIO/FileIn.h"
+#include "../UTMDomainAbstract.h"
+#include "FixDetail.h"
 
 
 class UTMDomainDetail :
@@ -33,12 +33,11 @@ class UTMDomainDetail :
     virtual void reset();
 
     // maps/Graph
-    SectorGraphManager* lowGraph;
-    //std::vector<easymath::XY> fix_locs;
+    MultiGraph<GridGraph> lowGraph;
 
     void addConflict(UAV* u1, UAV* u2) {
-        agents->metrics.at(u1->curSectorID()).local[u1->type_ID] += 0.5;
-        agents->metrics.at(u2->curSectorID()).local[u2->type_ID] += 0.5;
+        agents->metrics.at(u1->curSectorID()).local[u1->get_type()] += 0.5;
+        agents->metrics.at(u2->curSectorID()).local[u2->get_type()] += 0.5;
     }
     size_t getSector(easymath::XY p);
 

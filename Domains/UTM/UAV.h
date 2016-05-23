@@ -2,17 +2,9 @@
 #ifndef DOMAINS_UTM_UAV_H_
 #define DOMAINS_UTM_UAV_H_
 
-
-// STL includes
-#include <map>
-#include <queue>
-#include <utility>
-#include <list>
-#include <set>
-
 // libraries includes
-#include "../../Planning/TypeGraphManager.h"
-#include "../../Planning/SectorGraphManager.h"
+#include "../../Planning/MultiGraph.h"
+#include "../../Planning/LinkGraph.h"
 #include "UTMModesAndFiles.h"
 
 class UAV {
@@ -24,23 +16,48 @@ class UAV {
     typedef std::pair<int, int> edge;
 
     UAV(int start_mem, int end_mem, UTMModes::UAVType t,
-        TypeGraphManager* highGraph, std::map<edge, int>* linkIDs,
+        MultiGraph<LinkGraph> highGraph, std::map<edge, int>* linkIDs,
         UTMModes* params);
 
     ~UAV() {};
 
+    // Accessor functions
+    const size_t get_type() { return type_ID; }
+    void set_cur_link_ID(int link_ID) { cur_link_ID = link_ID; }
+    //! Gets the sector ID from the location
+    virtual int curSectorID() { return mem; }
+    //! Gets the sector ID for the desired end location
+    virtual int endSectorID() { return mem_end; }
 
-    void set_cur_link_ID(int link_ID) {
-        cur_link_ID = link_ID;
-    }
+    //! Gets the sector ID from the location
+    int nextSectorID(int n = 1);
 
-    UTMModes* params;
+    //! Gets the link ID from the location and desired next loction.
+    //! Throws out of range if internal link.
+    int curLinkID();
+
+    //! Gets the link ID of the next 'hop'.
+    //! Returns the current link if terminal
+    int nextLinkID();
 
     int getDirection();  // gets the cardinal direction of the UAV
 
     virtual void planAbstractPath();
 
     std::list<int> getBestPath();  // does not set anything within the UAV
+    bool at_destination() { return mem == mem_end; }
+    bool at_link_end() { return t <= 0; }
+    void decrement_wait() { t--; }
+    int get_wait() { return t; }
+    void set_wait(int time) { t = time; }
+    void set_cur_sector_ID(int sID) { mem = sID; }
+    bool link_touched(int lID) { return links_touched.count(lID) > 0; }
+    bool sector_touched(int sID) { return sectors_touched.count(sID) > 0; }
+
+protected:
+
+    UTMModes* params;
+
 
     int ID;
     size_t type_ID;
@@ -55,22 +72,7 @@ class UAV {
     int next_link_ID;
     int cur_link_ID;
 
-    //! Gets the sector ID from the location
-    int nextSectorID(int n = 1);
 
-    //! Gets the link ID from the location and desired next loction.
-    //! Throws out of range if internal link.
-    int curLinkID();
-
-    //! Gets the link ID of the next 'hop'.
-    //! Returns the current link if terminal
-    int nextLinkID();
-
-    //! Gets the sector ID from the location
-    virtual int curSectorID();
-
-    //! Gets the sector ID for the desired end location
-    virtual int endSectorID();
 
 
     // Delay modeling/abstraction mode
@@ -81,31 +83,8 @@ class UAV {
     std::set<int> links_touched;  // the sectors that the UAV has touched...
 
     bool currently_in_conflict;
-    TypeGraphManager* highGraph;  // shared with the simulator (for now);
+    MultiGraph<LinkGraph> highGraph;  // shared with the simulator (for now);
     bool on_internal_link;
-};
 
-class UAVDetail : public UAV {
- public:
-    UAVDetail(easymath::XY start_loc, easymath::XY end_loc,
-        UTMModes::UAVType t, TypeGraphManager* highGraph,
-        std::map<edge, int>* linkIDs, UTMModes* params,
-        SectorGraphManager* lowGraph);
-    SectorGraphManager* lowGraph;
-
-
-    // Physical location of a UAV
-    easymath::XY loc;
-    easymath::XY end_loc;
-    std::queue<easymath::XY> target_waypoints;  // target waypoints, low-level
-    void moveTowardNextWaypoint();  // takes a time increment to move over
-
-    //! Gets the sector ID from the location
-    virtual int curSectorID();
-    //! Gets the sector ID for the desired end location
-    virtual int endSectorID();
-
-    void planDetailPath();
-    virtual void planAbstractPath();
 };
 #endif  // DOMAINS_UTM_UAV_H_

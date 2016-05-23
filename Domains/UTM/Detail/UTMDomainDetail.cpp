@@ -11,29 +11,13 @@ using std::list;
 
 UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
     UTMDomainAbstract(params_set){
-    //fix_locs(FileIn::read_pairs<XY>("agent_map/fixes.csv")) {
-    // Add internal link IDs to the end of existing linkIDs
-    // (important for internal travel)
-    /*int cur_edge_num = linkIDs->size();
-    for (int i = 0; i < sectors.size(); i++) {
-        linkIDs->insert(make_pair(edge(i, i),cur_edge_num + i));
-    }*/
-
 
     matrix2d membership_map =
         FileIn::read2<double>("agent_map/membership_map.csv");
 
     // Planning
-    lowGraph = new SectorGraphManager(membership_map, highGraph->getEdges());
+    lowGraph = MultiGraph<GridGraph>(highGraph()->get_n_edges(), GridGraph(membership_map));
 
-    // Get link IDs for fix generation
-    // TODO: generate a fix somewhere in the airspace -- aim for the center, if not available pick random
-    //for (size_t i = 0; i < fix_locs.size(); i++) {
-    //    fixes.push_back(new FixDetail(fix_locs[i], i, highGraph, lowGraph,
-    //        //&fixes, 
-    //        fix_locs,
-    //        params, linkIDs));
-    //}
     vector<XY> sector_locs(sectors.size());
     for (int i = 0; i < sectors.size(); i++) {
         sector_locs[i] = sectors[i]->xy;
@@ -41,12 +25,9 @@ UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
     for (Sector* s : sectors) {
         s->generation_pt = FixDetail(s->xy, s->ID, highGraph, lowGraph, sector_locs, params, linkIDs);
     }
-
-    // NOTE: MAKE A 'SECTORDETAIL'?
 }
 
-UTMDomainDetail::~UTMDomainDetail(void) {
-}
+UTMDomainDetail::~UTMDomainDetail(void) {}
 
 
 void UTMDomainDetail::logUAVLocations() {
@@ -65,13 +46,13 @@ void UTMDomainDetail::exportUAVLocations(int fileID) {
 }
 
 vector<double> UTMDomainDetail::getPerformance() {
+    // TODO
     return zeros(1);
-    // return matrix1d(sectors.size(),-conflict_count);
 }
 
 
 vector<double> UTMDomainDetail::getRewards() {
-    // MAY WANT TO ADD SWITCH HERE
+    // TODO
 
     // DELAY REWARD
     return zeros(1);
@@ -94,7 +75,7 @@ vector<double> UTMDomainDetail::getRewards() {
 
 size_t UTMDomainDetail::getSector(easymath::XY p) {
     // tests membership for sector, given a location
-    return lowGraph->getMembership(p);
+    return lowGraph()->get_membership(p);
 }
 
 // HACK: ONLY GET PATH PLANS OF UAVS just generated

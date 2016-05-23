@@ -4,11 +4,14 @@
 
 #include <utility>
 #include <set>
+#include <vector>
 
 #include "MatrixTypes.h"
 #include "XY.h"
 
 namespace easymath {
+
+typedef std::vector<XY> path;
 
 //! Returns bin assignment based on bounds. Bounds must be sorted
 int bin(const double& n, const matrix1d& bounds);
@@ -45,12 +48,19 @@ std::set<XY> get_n_unique_points(double xmin, double xmax,
     double ymin, double ymax, size_t n);
 
 //! Gets random points, fit into a square
-std::set<XY> get_n_unique_square_points(double xmin, double xmax,
+std::vector<XY> get_n_unique_square_points(double xmin, double xmax,
     double ymin, double ymax, size_t n);
 
 //! Gets unique indices for a square that must contain n points
 std::vector<std::pair<int,int> > get_n_unique_square_subscripts(size_t n);
 
 std::pair<int, int> ind2sub(const int sub, const int cols, const int rows);
+
+size_t nChoosek(size_t n, size_t k);
+
+std::vector<std::pair<int, int> > all_combos_of_2(size_t n);
+
+bool is_endpt(const XY& a, const line_segment& b);
+bool pt_on_line(const XY& a, const line_segment& b, const double threshold = 0.01);
 }  // namespace easymath
 #endif  // MATH_EASYMATH_H_

@@ -10,12 +10,15 @@
 
 #include "../IDomainStateful.h"
 #include "../../Math/easymath.h"
-#include "../../Planning/TypeGraphManager.h"
+#include "../../Planning/MultiGraph.h"
+#include "../../Planning/RAGS.h"
+
 #include "UAV.h"
 #include "Sector.h"
 #include "Link.h"
 #include "Fix.h"
 #include "../../FileIO/FileOut.h"
+#include "../../FileIO/FileIn.h"
 
 
 class UTMDomainAbstract :
@@ -52,7 +55,10 @@ class UTMDomainAbstract :
     void getNewUAVTraffic();
     void absorbUAVTraffic();
 
-    TypeGraphManager* highGraph;
+
+    // Graphs/search objects
+    MultiGraph<LinkGraph> highGraph;
+    RAGS* rags_map;
 
     // Base function overloads
     matrix2d getStates();

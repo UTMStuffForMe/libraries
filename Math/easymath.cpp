@@ -46,19 +46,19 @@ std::vector<std::pair<int, int> > get_n_unique_square_subscripts(size_t n) {
     return subs;
 }
 
-std::set<XY> get_n_unique_square_points(double x_min, double x_max,
+std::vector<XY> get_n_unique_square_points(double x_min, double x_max,
     double y_min, double y_max, size_t n) {
 
     std::vector<std::pair<int, int> > subs = get_n_unique_square_subscripts(n);
 
-    std::set<XY> pts;
+    std::vector<XY> pts;
     for (size_t i = 0; i < subs.size(); i++) {
         double base = sqrt(get_nearest_square(n));
         double xval = (x_max - x_min)
             *static_cast<double>(subs[i].first) / base;
         double yval = (y_max - y_min)
             *static_cast<double>(subs[i].second) / base;
-        pts.insert(XY(xval, yval));
+        pts.push_back(XY(xval, yval));
     }
     return pts;
 }
@@ -155,5 +155,56 @@ double erfc(double x) {
     double y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*exp(-x*x);
 
     return 1 - sign*y;
+}
+
+size_t nChoosek(size_t n, size_t k)
+{
+    if (k > n) return 0;
+    if (k * 2 > n) k = n - k;
+    if (k == 0) return 1;
+
+    int result = n;
+    for (int i = 2; i <= k; ++i) {
+        result *= (n - i + 1);
+        result /= i;
+    }
+    return result;
+}
+
+std::vector<std::pair<int, int> > all_combos_of_2(size_t n) {
+    std::vector<std::pair<int, int> > v(nChoosek(n,2));
+    for (size_t i = 0, index=0; i < n - 1; i++) {
+        for (size_t j = i + 1; j < n; j++) {
+            v[index++] = std::make_pair(i, j);
+        }
+    }
+    return v;
+}
+
+bool is_endpt(const XY &p, const line_segment &l) {
+    // Check if point lies on endpoint of line
+    if (p == l.first || p == l.second)
+        return true;
+}
+
+bool pt_on_line(const XY &p, const line_segment &l, const double threshold) {
+    XY l1 = l.first;
+    XY l2 = l.second;
+    double m = (l2.y - l1.y) / (l2.x - l1.x);
+    double b = l1.y - l1.x*m;
+
+    double y_on_line = m*p.x + b;
+    double diff = fabs(p.y - y_on_line);
+    bool not_on_line = diff > threshold;
+
+    bool abv_xmin = p.x >= std::min(l1.x, l2.x);
+    bool blw_xmax = p.x <= std::max(l1.x, l2.x);
+    bool abv_ymin = p.y >= std::min(l1.y, l2.y);
+    bool blw_ymax = p.y <= std::max(l1.y, l2.y);
+    if (not_on_line) {
+        return false;   // not on line
+    } else if (abv_xmin && blw_xmax && abv_ymin && blw_ymax) {
+        return true;    // on the line segment!
+    }
 }
 }  // namespace easymath
