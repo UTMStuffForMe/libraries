@@ -8,9 +8,9 @@
 
 // STL includes
 #include <vector>
-#include <list>
 #include <utility>
 #include <string>
+#include <map>
 
 // library includes
 #include "../Math/easymath.h"
@@ -35,18 +35,20 @@ class LinkGraph {
     typedef boost::graph_traits<mygraph_t>::edge_iterator edge_iter;
 
     matrix1d saved_weights;  // for blocking and unblocking sectors
-    mygraph_t g;
     std::vector<easymath::XY> locations;
     std::map<easymath::XY, int> loc2mem;  // maps location to membership
 
     void blockVertex(int vertexID);
     void unblockVertex();
-    bool fully_connected(); // Tests whether the graph is fully connected
+    bool fully_connected();  // Tests whether the graph is fully connected
     bool intersects_existing_edge(edge candidate);
 
 
  public:
-    LinkGraph(std::vector<easymath::XY> locations_set, const std::vector<edge> &edge_array);
+     mygraph_t g;
+
+     LinkGraph(std::vector<easymath::XY> locations_set,
+        const std::vector<edge> &edge_array);
     LinkGraph(size_t n_vertices, size_t xdim, size_t ydim);
     ~LinkGraph(void) {}
 
@@ -54,18 +56,14 @@ class LinkGraph {
     //! Accessor functions
     const size_t get_n_vertices() { return locations.size(); }
     const size_t get_n_edges() { return num_edges(g); }
-    const easymath::XY get_vertex_loc(int vID) { return locations.at(vID); };
-    const int get_membership(easymath::XY pt) { return loc2mem.at(pt); };
+    const easymath::XY get_vertex_loc(int vID) { return locations.at(vID); }
+    const int get_membership(easymath::XY pt) { return loc2mem.at(pt); }
     const matrix1d get_weights();
     const std::vector<edge> get_edges();
-    const std::vector<easymath::XY> get_locations() { return locations; };
+    const std::vector<easymath::XY> get_locations() { return locations; }
     void set_weights(matrix1d weights);
 
     const int get_direction(int m1, int m2);
-
-    //! Main search algorithm
-    //std::list<int> astar(int start, int goal);
-    //std::list<int> rags(int start, int goal);
 
     //! Printout
     void print_graph(std::string file_path);

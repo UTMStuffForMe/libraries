@@ -2,6 +2,10 @@
 #ifndef DOMAINS_UTM_UAVDETAIL_H_
 #define DOMAINS_UTM_UAVDETAIL_H_
 
+// STL includes
+#include <queue>
+
+// Library includes
 #include "../UAV.h"
 #include "../../../Planning/GridGraph.h"
 

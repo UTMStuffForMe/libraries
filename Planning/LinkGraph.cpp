@@ -1,24 +1,24 @@
 // Copyright 2016 Carrie Rebhuhn
 #include "LinkGraph.h"
 
+#include <string>
+#include <list>
+#include <vector>
+
+using std::string;
+using std::list;
 using std::vector;
 using easymath::XY;
-using std::list;
 using easymath::get_n_unique_square_points;
 using easymath::all_combos_of_2;
-using std::make_pair;
-using std::pair;
+using easymath::zeros;
 using easymath::line_segment;
 using easymath::intersects_in_center;
-using easymath::is_endpt;
-using easymath::pt_on_line;
-using easymath::zeros;
 
-LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim):
-    g(n_vertices) // Adds a set of vertices to the graph
-{
+LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim) :
+    g(n_vertices) {
     locations = get_n_unique_square_points(0.0, xdim, 0.0, ydim, n_vertices);
-    
+
     vector<edge> candidates = all_combos_of_2(n_vertices);
     random_shuffle(candidates.begin(), candidates.end());
 
@@ -34,15 +34,14 @@ LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim):
     for (size_t i = 0; i < n_vertices; i++) {
         loc2mem[locations[i]] = i;  // add in reverse lookup
     }
-
 }
 
 const vector<LinkGraph::edge> LinkGraph::get_edges() {
     edge_iter ei, ei_end;
-    std::vector<edge> edges_out(std::distance(ei, ei_end));
-    int index=0;
+    vector<edge> edges_out(get_n_edges());
+    int index = 0;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
-        edges_out[index++] = edge((*ei).m_source,(*ei).m_target);
+        edges_out[index++] = edge((*ei).m_source, (*ei).m_target);
     }
     return edges_out;
 }
@@ -50,8 +49,6 @@ const vector<LinkGraph::edge> LinkGraph::get_edges() {
 
 LinkGraph::LinkGraph(vector<XY> locs, const vector<edge> &edge_array) :
     locations(locs) {
-
-    // Create graph
     g = mygraph_t(edge_array.begin(), edge_array.end(), locations.size());
     set_weights(matrix1d(edge_array.size(), 1.0));
 }
@@ -93,17 +90,17 @@ const matrix1d LinkGraph::get_weights() {
     return weights;
 }
 
-void LinkGraph::print_graph(std::string file_path) {
+void LinkGraph::print_graph(string file_path) {
     matrix2d connections_matrix = zeros(locations.size(), locations.size());
-    
+
     edge_iter ei, ei_end;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
         connections_matrix[(*ei).m_source][(*ei).m_target] = true;
     }
 
-    std::string CONNECTIONS_FILE = file_path + "connections.csv";
-    std::string NODES_FILE = file_path + "nodes.csv";
-    std::string EDGES_FILE = file_path + "edges.csv";
+    string CONNECTIONS_FILE = file_path + "connections.csv";
+    string NODES_FILE = file_path + "nodes.csv";
+    string EDGES_FILE = file_path + "edges.csv";
 
     FileOut::print_pair_container(locations, NODES_FILE);
     FileOut::print_pair_container(get_edges(), EDGES_FILE);
@@ -114,9 +111,7 @@ bool LinkGraph::fully_connected() {
     for (size_t i = 0; i < get_n_vertices(); i++) {
         for (size_t j = 0; j < get_n_vertices(); j++) {
             if (i == j) continue;
-
-            euclidean_heuristic_index<mygraph_t> h = euclidean_heuristic_index<mygraph_t> (j, locations);
-            list<size_t> p = Planning::astar(g, i, j,h);
+            list<size_t> p = Planning::astar(g, i, j, &locations);
             if (p.size() == 1)
                 return false;
         }
@@ -128,13 +123,13 @@ bool LinkGraph::intersects_existing_edge(edge candidate) {
     XY b1 = locations[candidate.first];
     XY b2 = locations[candidate.second];
     line_segment b = line_segment(b1, b2);
-    
+
     edge_iter ei, ei_end;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
         XY a1 = locations[(*ei).m_source];
         XY a2 = locations[(*ei).m_target];
         line_segment a = line_segment(a1, a2);
-    
+
         if (intersects_in_center(a, b))
             return true;
     }
@@ -142,7 +137,7 @@ bool LinkGraph::intersects_existing_edge(edge candidate) {
     // Check if any agent locations are being crossed by an edge
     // Exclude case where agent is at endpoint
     for (XY a : locations) {
-        if (!is_endpt(a,b) && pt_on_line(a,b))
+        if (!is_endpt(a, b) && pt_on_line(a, b))
             return true;
     }
     return false;
@@ -151,5 +146,5 @@ bool LinkGraph::intersects_existing_edge(edge candidate) {
 const int LinkGraph::get_direction(int m1, int m2) {
     XY a = get_vertex_loc(m1);
     XY b = get_vertex_loc(m2);
-    return easymath::cardinal_direction(a - b);
+    return cardinal_direction(a - b);
 }

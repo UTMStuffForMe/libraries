@@ -38,7 +38,7 @@ std::vector<std::pair<int, int> > get_n_unique_square_subscripts(size_t n) {
         inds.erase(inds.begin() + std::rand() % inds.size());
     }
 
-    int base = sqrt(square);
+    int base = static_cast<int>(sqrt(square));
     std::vector<std::pair<int, int> > subs(inds.size());
     for (size_t i = 0; i < subs.size(); i++) {
         subs[i] = ind2sub(inds[i], base, base);
@@ -157,14 +157,13 @@ double erfc(double x) {
     return 1 - sign*y;
 }
 
-size_t nChoosek(size_t n, size_t k)
-{
+size_t nChoosek(size_t n, size_t k) {
     if (k > n) return 0;
     if (k * 2 > n) k = n - k;
     if (k == 0) return 1;
 
     int result = n;
-    for (int i = 2; i <= k; ++i) {
+    for (size_t i = 2; i <= k; ++i) {
         result *= (n - i + 1);
         result /= i;
     }
@@ -172,8 +171,8 @@ size_t nChoosek(size_t n, size_t k)
 }
 
 std::vector<std::pair<int, int> > all_combos_of_2(size_t n) {
-    std::vector<std::pair<int, int> > v(nChoosek(n,2));
-    for (size_t i = 0, index=0; i < n - 1; i++) {
+    std::vector<std::pair<int, int> > v(nChoosek(n, 2));
+    for (size_t i = 0, index = 0; i < n - 1; i++) {
         for (size_t j = i + 1; j < n; j++) {
             v[index++] = std::make_pair(i, j);
         }
@@ -183,8 +182,7 @@ std::vector<std::pair<int, int> > all_combos_of_2(size_t n) {
 
 bool is_endpt(const XY &p, const line_segment &l) {
     // Check if point lies on endpoint of line
-    if (p == l.first || p == l.second)
-        return true;
+    return (p == l.first || p == l.second);
 }
 
 bool pt_on_line(const XY &p, const line_segment &l, const double threshold) {
@@ -203,8 +201,8 @@ bool pt_on_line(const XY &p, const line_segment &l, const double threshold) {
     bool blw_ymax = p.y <= std::max(l1.y, l2.y);
     if (not_on_line) {
         return false;   // not on line
-    } else if (abv_xmin && blw_xmax && abv_ymin && blw_ymax) {
-        return true;    // on the line segment!
+    } else {
+        return (abv_xmin && blw_xmax && abv_ymin && blw_ymax);
     }
 }
 }  // namespace easymath

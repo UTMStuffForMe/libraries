@@ -33,9 +33,9 @@ void UAVDetail::planAbstractPath() {
     int cur_s = curSectorID();
     int end_s = endSectorID();
     if (params->_search_type_mode == UTMModes::SearchDefinition::ASTAR) {
-        high_path = highGraph(type_ID)->astar(cur_s, end_s);
+        high_path = Planning::astar(highGraph(type_ID)->g, cur_s, end_s, &highGraph()->get_locations());
     } else {
-        high_path = highGraph(type_ID)->rags(cur_s, end_s);
+        //high_path = highGraph(type_ID)->rags(cur_s, end_s);
     }
 
     if (high_path_prev != high_path) {
@@ -55,8 +55,7 @@ void UAVDetail::planDetailPath() {
     // Get the astar low-level path
     XY next_loc = highGraph()->get_vertex_loc(nextSectorID());
 
-    vector<XY> low_path = lowGraph(curLinkID())->astar(loc, next_loc);
-    std::reverse(low_path.begin(), low_path.end());
+    std::list<XY> low_path = Planning::astar(lowGraph(curLinkID())->g, loc, next_loc);
 
     // Add to target waypoints
     clear(&target_waypoints);

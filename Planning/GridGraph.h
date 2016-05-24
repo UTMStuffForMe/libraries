@@ -59,8 +59,6 @@ private:
     //! Filter the barrier vertices out of the underlying grid.
     filtered_grid create_barrier_grid();
 
-    //! The grid underlying the AStarGrid
-    grid m_grid;
 
     //! The underlying AStarGrid grid with barrier vertices filtered out
     filtered_grid m_barrier_grid;
@@ -69,6 +67,10 @@ private:
     vertex_set m_barriers;
 
 public:
+
+    //! The grid underlying the AStarGrid
+    grid g;
+
     explicit GridGraph(const matrix2d &members);
     ~GridGraph() {}
 
