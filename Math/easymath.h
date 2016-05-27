@@ -52,7 +52,7 @@ std::vector<XY> get_n_unique_square_points(double xmin, double xmax,
     double ymin, double ymax, size_t n);
 
 //! Gets unique indices for a square that must contain n points
-std::vector<std::pair<int,int> > get_n_unique_square_subscripts(size_t n);
+std::vector<std::pair<int, int> > get_n_unique_square_subscripts(size_t n);
 
 std::pair<int, int> ind2sub(const int sub, const int cols, const int rows);
 
@@ -61,6 +61,6 @@ size_t nChoosek(size_t n, size_t k);
 std::vector<std::pair<int, int> > all_combos_of_2(size_t n);
 
 bool is_endpt(const XY& a, const line_segment& b);
-bool pt_on_line(const XY& a, const line_segment& b, const double threshold = 0.01);
+bool pt_on_line(const XY& a, const line_segment& b, const double thresh = 0.01);
 }  // namespace easymath
 #endif  // MATH_EASYMATH_H_

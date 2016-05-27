@@ -2,23 +2,22 @@
 #ifndef PLANNING_PLANNING_H_
 #define PLANNING_PLANNING_H_
 
+#include <boost/unordered_map.hpp>
 #include <boost/graph/astar_search.hpp>
 #include <list>
 #include <vector>
 #include <utility>
 
-
-//! Visitor that terminates when we find the goal
 namespace Planning {
-
-namespace backend {
+namespace detail {
 
 //! Exception for graph search termination.
 struct found_goal {};
 
+//! Defines the point when a goal is found
 template <class GType>
 class astar_goal_visitor : public boost::default_astar_visitor {
-public:
+ public:
     typedef typename boost::graph_traits<GType>::vertex_descriptor VType;
     explicit astar_goal_visitor(VType goal) : m_goal(goal) {}
     astar_goal_visitor() {}
@@ -29,94 +28,91 @@ public:
     VType m_goal;
 };
 
-// Euclidean heuristic, using an 2d input for the goal position
-template<class GType, class VType>
-class euclidean_heuristic_v2d : public boost::astar_heuristic<GType, double> {
-public:
-    explicit euclidean_heuristic_v2d(VType goal_coords) :
-        m_goal(goal_coords) {}
+//! Euclidean heuristic. Requires a class object that has functions that
+//! translate vertex descriptor to x and y locations.
+template<class G, class Gbase>
+class euclidean_heuristic : public boost::astar_heuristic<Gbase, double> {
+ public:
+    typedef typename Gbase::vertex_descriptor V;
+    euclidean_heuristic(G funcs, Gbase g, V goal) :
+        m_goal(goal), g(g), funcs(funcs) {}
 
-    double operator()(VType v) {
-        double dx = m_goal[0] - v[0];
-        double dy = m_goal[1] - v[1];
+    double operator()(V v) {
+        double dx = funcs.get_x(m_goal) - funcs.get_x(v);
+        double dy = funcs.get_y(m_goal) - funcs.get_y(v);
         return sqrt(dx*dx + dy*dy);
     }
-    VType m_goal;
+    V m_goal;
+    Gbase g;
+    G funcs;    // Allows access to get_x and get_y functions
 };
 
-// Euclidean heuristic, requiring mapping of index to physical location
-template<class GType, class LocMap>
-class euclidean_heuristic_indexed :
-    public boost::astar_heuristic<GType, double> {
-public:
-    typedef typename boost::graph_traits<GType>::vertex_descriptor VType;
-    euclidean_heuristic_indexed(VType goal, LocMap* locations) :
-        m_goal(goal), m_locations(locations) {}
+//! Backend for retrieving the euclidean heuristic.
+//! Takes a boost graph object for Gbase, so that template can be deduced.
+template <class G, class Gbase, class V>
+auto get_euclidean_heuristic(G funcs, Gbase g, V v) {
+    return euclidean_heuristic<G, Gbase>(funcs, g, v);
+}
 
-    double operator()(VType v) {
-        double dx = m_locations->at(m_goal).x - m_locations->at(v).x;
-        double dy = m_locations->at(m_goal).y - m_locations->at(v).y;
-        return sqrt(dx*dx + dy*dy);
+//! Gets the bgl named params necessary for astar search
+template<class G, class Gbase, class V, class P>
+auto get_params(const Gbase& g, const V& goal, P *predecessors) {
+    return boost::weight_map(G::weight())
+        .predecessor_map(G::pred_pmap(predecessors))
+        .distance_map(G::dist_pmap())
+        .visitor(detail::astar_goal_visitor<Gbase>(goal));
+}
+
+}  // namespace detail
+
+//! Interface for a class to use the astar planning
+template <class G, class vertex_base, class vertex_hash>
+class IBoostGraph {
+ public:
+    typedef typename G::vertex_descriptor vertex_descriptor;
+    //! Maps are vertex-to-vertex mapping.
+    typedef typename boost::unordered_map<vertex_descriptor, vertex_descriptor,
+        vertex_hash> pred_map;
+    typedef typename boost::unordered_map<vertex_descriptor, double,
+        vertex_hash> dist_map;
+    virtual vertex_descriptor get_descriptor(vertex_base) = 0;
+    virtual vertex_base get_vertex_base(vertex_descriptor) = 0;
+    virtual double get_x(vertex_descriptor) = 0;
+    virtual double get_y(vertex_descriptor) = 0;
+
+    static auto pred_pmap(pred_map *predecessor) {
+        return boost::associative_property_map<pred_map>(*predecessor);
     }
-    VType m_goal;
-    LocMap* m_locations;
+    static auto dist_pmap() {
+        dist_map distance;
+        return boost::associative_property_map<dist_map>(distance);
+    }
+    static auto weight() {
+        return boost::static_property_map<double>(1);
+    }
 };
 
-template <class GType, class VType, class HType>
-static std::list<VType> astar(GType g, VType start, VType goal, HType h) {
-    std::vector<VType> p(num_vertices(g));
-    std::vector<double> d(num_vertices(g));
+template <class V, class G>
+std::list<V> astar(G g, V start, V goal) {
+    auto s = g.get_descriptor(start);
+    auto e = g.get_descriptor(goal);
+    auto h = detail::get_euclidean_heuristic(g, g.g, e);
+    G::pred_map predecessor;  // Needed for retrieving path
+    auto p = detail::get_params<G>(g.g, e, &predecessor);
 
+    std::list<V> solution;
     try {
-        boost::astar_search
-            (g, start, h,
-                boost::predecessor_map(&p[0]).distance_map(&d[0]).
-                visitor(astar_goal_visitor<GType>(goal)));
+        boost::astar_search(g.g, s, h, p);
     }
-    catch (found_goal) {  // found a path to the goal
-        std::list<VType> shortest_path;
-        for (VType v = goal;; v = p[v]) {
-            shortest_path.push_front(v);
-            if (p[v] == v)
-                break;
-            return shortest_path;
+    catch (detail::found_goal) {
+        for (auto u = e; u != s; u = predecessor[u]) {
+            V val = g.get_vertex_base(u);
+            solution.push_back(val);
         }
+        return solution;
     }
-    return std::list<VType>();
+
+    return solution;
 }
-
-}
-
-template <class GType, class VType>
-static std::list<VType> astar(GType g, VType start, VType goal) {
-    backend::euclidean_heuristic_v2d<GType, VType> h(goal);
-
-    boost::graph_traits<GType>::vertex_descriptor s = { start.x, start.y };
-    boost::graph_traits<GType>::vertex_descriptor e = { start.x, start.y };
-
-    auto p = astar(g, s, e, h);
-    std::list<VType> out;
-    for (auto i : p) {
-        out.push_back(VType(i[0], i[1]));
-    }
-    return out;
-}
-
-template <class GType, class VType, class LocMap>
-static std::list<VType> astar(GType g, VType start, VType goal, LocMap* locations) {
-    std::vector<VType> p(num_vertices(g));
-    std::vector<double> d(num_vertices(g));
-
-    backend::euclidean_heuristic_indexed<GType, LocMap> h(goal, locations);
-    return backend::astar(g, start, goal, h);
-}
-
-
-/*
-template <class GType, class VType>
-static std::list<int> rags(GType g, VType start, VType goal) {
-    return std::list<int>();
-}
-*/
-}
+}  // namespace Planning
 #endif  // PLANNING_PLANNING_H_

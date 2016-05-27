@@ -19,9 +19,14 @@ LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim) :
     g(n_vertices) {
     locations = get_n_unique_square_points(0.0, xdim, 0.0, ydim, n_vertices);
 
+    for (size_t i = 0; i < n_vertices; i++) {
+        g[i].x = static_cast<size_t>(locations[i].x);    // locate the vertices
+        g[i].y = static_cast<size_t>(locations[i].y);    // locate the vertices
+        loc2mem[locations[i]] = i;  // add in reverse lookup
+    }
+
     vector<edge> candidates = all_combos_of_2(n_vertices);
     random_shuffle(candidates.begin(), candidates.end());
-
 
     // Add as many edges as possible, while still planar
     for (edge c : candidates) {
@@ -29,10 +34,6 @@ LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim) :
             boost::add_edge(c.first, c.second, g);
             boost::add_edge(c.second, c.first, g);
         }
-    }
-
-    for (size_t i = 0; i < n_vertices; i++) {
-        loc2mem[locations[i]] = i;  // add in reverse lookup
     }
 }
 
@@ -111,9 +112,8 @@ bool LinkGraph::fully_connected() {
     for (size_t i = 0; i < get_n_vertices(); i++) {
         for (size_t j = 0; j < get_n_vertices(); j++) {
             if (i == j) continue;
-            list<size_t> p = Planning::astar(g, i, j, &locations);
-            if (p.size() == 1)
-                return false;
+            list<size_t> p = Planning::astar(*this, i, j);
+            if (p.empty()) return false;
         }
     }
     return true;

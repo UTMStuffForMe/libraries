@@ -7,12 +7,11 @@
 
 #include <vector>
 #include <algorithm>
+#include <functional>
 
 typedef std::vector<double> matrix1d;
 typedef std::vector<matrix1d> matrix2d;
 typedef std::vector<matrix2d> matrix3d;
-
-
 
 //! Also contains math functions for use with the matrices
 namespace easymath {
@@ -94,7 +93,7 @@ std::vector<T> set_negative_zero(const std::vector<T> &m) {
 }
 
 template<typename T>
-size_t get_max_index(std::vector<T> v){
+size_t get_max_index(std::vector<T> v) {
     #ifndef _WIN32
     typename std::vector<T>::iterator el = std::max_element(v.begin(), v.end());
     #else

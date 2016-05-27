@@ -17,20 +17,41 @@
 #include "../FileIO/FileOut.h"
 #include "Planning.h"
 
-class LinkGraph {
- private:
-    typedef double cost;
-    typedef boost::adjacency_list
-        <boost::listS,      // edge container
-        boost::vecS,        // vertex container
-        boost::directedS,   // edge (u,v) can have a different weight than (v,u)
-        boost::no_property,
-        boost::property<boost::edge_weight_t, cost> > mygraph_t;
-    // Note: m_edges is not populated
-    // vertex is an int: corresponds to number in the locations list
-    typedef mygraph_t::vertex_descriptor vertex_descriptor;
-    typedef mygraph_t::edge_descriptor edge_descriptor;
-    typedef mygraph_t::vertex_iterator vertex_iterator;
+class vertex_info {
+ public:
+    size_t ID;
+    size_t x, y;
+    size_t operator[](size_t index) {
+        if (index == 0)
+            return x;
+        else
+            return y;
+    }
+};
+
+typedef boost::adjacency_list
+<boost::listS,      // edge container
+    boost::vecS,        // vertex container
+    boost::directedS,   // edge (u,v) can have a different weight than (v,u)
+    vertex_info,
+    boost::property<boost::edge_weight_t, double> > mygraph_t;
+
+typedef boost::hash<mygraph_t::vertex_descriptor> node_hash;
+
+typedef Planning::IBoostGraph<mygraph_t, size_t, node_hash> LinkBase;
+
+class LinkGraph : public LinkBase {
+ public:
+    //! For compliance with base type
+    typedef typename LinkBase::vertex_descriptor vertex_descriptor;
+    typedef typename LinkBase::dist_map dist_map;
+    typedef typename LinkBase::pred_map pred_map;
+    vertex_descriptor get_descriptor(size_t v) { return v; }
+    size_t get_vertex_base(vertex_descriptor v) { return v; }
+    double get_x(vertex_descriptor v) { return locations[v].x; }
+    double get_y(vertex_descriptor v) { return locations[v].y; }
+
+    // More convenient types
     typedef std::pair<int, int> edge;
     typedef boost::graph_traits<mygraph_t>::edge_iterator edge_iter;
 
@@ -45,13 +66,12 @@ class LinkGraph {
 
 
  public:
-     mygraph_t g;
+    mygraph_t g;
 
-     LinkGraph(std::vector<easymath::XY> locations_set,
+    LinkGraph(std::vector<easymath::XY> locations_set,
         const std::vector<edge> &edge_array);
     LinkGraph(size_t n_vertices, size_t xdim, size_t ydim);
     ~LinkGraph(void) {}
-
 
     //! Accessor functions
     const size_t get_n_vertices() { return locations.size(); }

@@ -16,39 +16,57 @@
 #include <vector>
 #include <functional>
 
+
+#include "Planning.h"
 // from libraries
 #include "../../libraries/Math/easymath.h"
 
 /**
 * This is a specialization of a graph for an 8-connected grid.
 */
-class GridGraph {
-private:
-    typedef std::pair<int, int> edge;
-    typedef std::vector<std::vector<bool> > barrier_grid;
-    static const int GRID_RANK = 2;
-    typedef boost::grid_graph<GRID_RANK> grid;
-    typedef boost::graph_traits<grid>::vertex_descriptor vertex_descriptor;
+typedef boost::grid_graph<2> grid;
 
-    // A hash function for vertices.
-    struct vertex_hash :std::unary_function<vertex_descriptor, std::size_t> {
-        std::size_t operator()(vertex_descriptor const& u) const {
-            std::size_t seed = 0;
-            boost::hash_combine(seed, u[0]);
-            boost::hash_combine(seed, u[1]);
-            return seed;
-        }
-    };
+// A hash function for vertices.
+struct vertex_hash :std::unary_function<grid::vertex_descriptor, std::size_t> {
+    std::size_t operator()(grid::vertex_descriptor const& u) const {
+        return this->operator()(u[0], u[1]);
+    }
+    std::size_t operator()(size_t x, size_t y) const {
+        std::size_t seed = 0;
+        boost::hash_combine(seed, x);
+        boost::hash_combine(seed, y);
+        return seed;
+    }
+};
+
+
+typedef Planning::IBoostGraph<grid, easymath::XY, vertex_hash> GridBase;
+
+class GridGraph : public GridBase {
+ public:
+    // Types required for boost A* use
+    typedef typename GridBase::vertex_descriptor vertex_descriptor;
+    typedef typename GridBase::dist_map dist_map;
+    typedef typename GridBase::pred_map pred_map;
 
     typedef boost::unordered_set<vertex_descriptor, vertex_hash> vertex_set;
-    typedef boost::vertex_subset_complement_filter<grid, vertex_set>::type filtered_grid;
+    typedef boost::vertex_subset_complement_filter<grid, vertex_set>
+        ::type filtered_grid;
 
-    //! Maps are vertex-to-vertex mapping.
-    typedef boost::unordered_map<vertex_descriptor, vertex_descriptor, vertex_hash> pred_map;
-    typedef boost::unordered_map<vertex_descriptor, double, vertex_hash> dist_map;
+    vertex_descriptor get_descriptor(easymath::XY pt) {
+        return{ static_cast<size_t>(pt.x), static_cast<size_t>(pt.y) };
+    }
+    easymath::XY get_vertex_base(vertex_descriptor v) {
+        return easymath::XY(v[0], v[1]); }
+    double get_x(vertex_descriptor v) { return v[0]; }
+    double get_y(vertex_descriptor v) { return v[1]; }
+
+    typedef std::pair<int, int> edge;
+    typedef std::vector<std::vector<bool> > barrier_grid;
+
 
     //! Should only be called from other constructor
-    GridGraph(barrier_grid obstacle_map);
+    explicit GridGraph(barrier_grid obstacle_map);
 
     //! Defines the membership for each cell in the grid
     matrix2d members;
@@ -59,17 +77,14 @@ private:
     //! Filter the barrier vertices out of the underlying grid.
     filtered_grid create_barrier_grid();
 
-
-    //! The underlying AStarGrid grid with barrier vertices filtered out
-    filtered_grid m_barrier_grid;
-
     //! The barriers in the AStarGrid
     vertex_set m_barriers;
 
-public:
+    grid m_grid;
 
-    //! The grid underlying the AStarGrid
-    grid g;
+ public:
+    //! The underlying AStarGrid grid with barrier vertices filtered out
+    filtered_grid g;
 
     explicit GridGraph(const matrix2d &members);
     ~GridGraph() {}
@@ -77,10 +92,9 @@ public:
     //! Adds barriers if a cell does not match membership m1 or m2
     void occlude_nonmembers(int m1, int m2);
 
-    //! Performs A* search from the source to the goal
-    //std::vector<easymath::XY> astar(easymath::XY source, easymath::XY goal);
-
     // Accessor functions
-    const int get_membership(easymath::XY p) { return static_cast<int>(members[static_cast<size_t>(p.x)][static_cast<size_t>(p.y)]); }
+    const int get_membership(easymath::XY p){
+        return static_cast<int>(
+        members[static_cast<size_t>(p.x)][static_cast<size_t>(p.y)]); }
 };
 #endif  // PLANNING_GRIDGRAPH_H_
