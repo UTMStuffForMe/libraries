@@ -55,11 +55,11 @@ auto get_euclidean_heuristic(G funcs, Gbase g, V v) {
 }
 
 //! Gets the bgl named params necessary for astar search
-template<class G, class Gbase, class V, class P>
-auto get_params(const Gbase& g, const V& goal, P *predecessors) {
-    return boost::weight_map(G::weight())
-        .predecessor_map(G::pred_pmap(predecessors))
-        .distance_map(G::dist_pmap())
+template<class G, class Gbase, class V>
+auto get_params(G GraphWrapper, const Gbase& g, const V& goal) {
+    return boost::weight_map(GraphWrapper.weight)
+        .predecessor_map(GraphWrapper.pred_pmap)
+        .distance_map(GraphWrapper.dist_pmap)
         .visitor(detail::astar_goal_visitor<Gbase>(goal));
 }
 
@@ -69,6 +69,8 @@ auto get_params(const Gbase& g, const V& goal, P *predecessors) {
 template <class G, class vertex_base, class vertex_hash>
 class IBoostGraph {
  public:
+     IBoostGraph(): pred_pmap(predecessor), dist_pmap(distance),
+         weight(boost::static_property_map<double>(1)){}
     typedef typename G::vertex_descriptor vertex_descriptor;
     //! Maps are vertex-to-vertex mapping.
     typedef typename boost::unordered_map<vertex_descriptor, vertex_descriptor,
@@ -80,15 +82,14 @@ class IBoostGraph {
     virtual double get_x(vertex_descriptor) = 0;
     virtual double get_y(vertex_descriptor) = 0;
 
-    static auto pred_pmap(pred_map *predecessor) {
-        return boost::associative_property_map<pred_map>(*predecessor);
-    }
-    static auto dist_pmap() {
-        dist_map distance;
-        return boost::associative_property_map<dist_map>(distance);
-    }
-    static auto weight() {
-        return boost::static_property_map<double>(1);
+    pred_map predecessor;
+    boost::associative_property_map<pred_map> pred_pmap;
+    dist_map distance;
+    boost::associative_property_map<dist_map> dist_pmap;
+    boost::static_property_map<double> weight;
+
+    void populate_properties(){
+
     }
 };
 
@@ -97,15 +98,15 @@ std::list<V> astar(G g, V start, V goal) {
     auto s = g.get_descriptor(start);
     auto e = g.get_descriptor(goal);
     auto h = detail::get_euclidean_heuristic(g, g.g, e);
-    G::pred_map predecessor;  // Needed for retrieving path
-    auto p = detail::get_params<G>(g.g, e, &predecessor);
+    auto p = detail::get_params<G>(g,g.g, e);
+    g.populate_properties();
 
     std::list<V> solution;
     try {
         boost::astar_search(g.g, s, h, p);
     }
     catch (detail::found_goal) {
-        for (auto u = e; u != s; u = predecessor[u]) {
+        for (auto u = e; u != s; u = g.predecessor[u]) {
             V val = g.get_vertex_base(u);
             solution.push_back(val);
         }

@@ -15,8 +15,7 @@ using easymath::zeros;
 using easymath::line_segment;
 using easymath::intersects_in_center;
 
-LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim) :
-    g(n_vertices) {
+LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim) : g(n_vertices){
     locations = get_n_unique_square_points(0.0, xdim, 0.0, ydim, n_vertices);
 
     for (size_t i = 0; i < n_vertices; i++) {
