@@ -21,10 +21,13 @@
 // from libraries
 #include "../../libraries/Math/easymath.h"
 
+
+
 /**
 * This is a specialization of a graph for an 8-connected grid.
 */
 typedef boost::grid_graph<2> grid;
+
 
 // A hash function for vertices.
 struct vertex_hash :std::unary_function<grid::vertex_descriptor, std::size_t> {
@@ -40,7 +43,14 @@ struct vertex_hash :std::unary_function<grid::vertex_descriptor, std::size_t> {
 };
 
 
-typedef Planning::IBoostGraph<grid, easymath::XY, vertex_hash> GridBase;
+struct vertex_equal {
+    bool operator()(const grid::vertex_descriptor &rhs, const grid::vertex_descriptor &lhs) const {
+        return rhs[0] == lhs[0] && rhs[1] == lhs[1];
+    }
+};
+
+
+typedef IBoostGraph<grid, easymath::XY, vertex_hash, vertex_equal> GridBase;
 
 class GridGraph : public GridBase {
  public:
@@ -48,8 +58,9 @@ class GridGraph : public GridBase {
     typedef typename GridBase::vertex_descriptor vertex_descriptor;
     typedef typename GridBase::dist_map dist_map;
     typedef typename GridBase::pred_map pred_map;
+    
 
-    typedef boost::unordered_set<vertex_descriptor, vertex_hash> vertex_set;
+    typedef boost::unordered_set<vertex_descriptor, vertex_hash,vertex_equal> vertex_set;
     typedef boost::vertex_subset_complement_filter<grid, vertex_set>
         ::type filtered_grid;
 
@@ -57,9 +68,9 @@ class GridGraph : public GridBase {
         return{ static_cast<size_t>(pt.x), static_cast<size_t>(pt.y) };
     }
     easymath::XY get_vertex_base(vertex_descriptor v) {
-        return easymath::XY(v[0], v[1]); }
-    double get_x(vertex_descriptor v) { return v[0]; }
-    double get_y(vertex_descriptor v) { return v[1]; }
+        return easymath::XY(static_cast<double>(v[0]), static_cast<double>(v[1])); }
+    double get_x(vertex_descriptor v) { return static_cast<double>(v[0]); }
+    double get_y(vertex_descriptor v) { return static_cast<double>(v[1]); }
 
     typedef std::pair<int, int> edge;
     typedef std::vector<std::vector<bool> > barrier_grid;

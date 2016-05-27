@@ -44,7 +44,7 @@ class UAV {
 
     virtual void planAbstractPath();
 
-    std::list<int> getBestPath();  // does not set anything within the UAV
+    std::list<size_t> getBestPath();  // does not set anything within the UAV
     bool at_destination() { return mem == mem_end; }
     bool at_link_end() { return t <= 0; }
     void decrement_wait() { t--; }
@@ -66,7 +66,7 @@ protected:
     double speed;  // connected to type_ID
     bool pathChanged;
     int mem, mem_end;
-    std::list<int> high_path_prev;  // saves the high level path
+    std::list<size_t> high_path_prev;  // saves the high level path
     std::map<edge, int> *linkIDs;
 
     int next_link_ID;

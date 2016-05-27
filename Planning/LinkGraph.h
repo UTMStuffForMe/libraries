@@ -38,7 +38,7 @@ typedef boost::adjacency_list
 
 typedef boost::hash<mygraph_t::vertex_descriptor> node_hash;
 
-typedef Planning::IBoostGraph<mygraph_t, size_t, node_hash> LinkBase;
+typedef IBoostGraph<mygraph_t, size_t, node_hash> LinkBase;
 
 class LinkGraph : public LinkBase {
  public:

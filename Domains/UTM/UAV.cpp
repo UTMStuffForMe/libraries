@@ -59,19 +59,19 @@ int UAV::nextLinkID() {
     }
 }
 
-std::list<int> UAV::getBestPath() {
-    return Planning::astar(highGraph(type_ID)->g, mem, mem_end, &highGraph()->get_locations());
+std::list<size_t> UAV::getBestPath() {
+    return Planning::astar<LinkGraph,size_t>(highGraph(type_ID), mem, mem_end);
 }
 
 void UAV::planAbstractPath() {
     if (!on_internal_link) links_touched.insert(cur_link_ID);
     sectors_touched.insert(curSectorID());
 
-    list<int> high_path;
+    list<size_t> high_path;
     int cur_s = curSectorID();
     int end_s = endSectorID();
     if (params->_search_type_mode == UTMModes::SearchDefinition::ASTAR) {
-        high_path = Planning::astar(highGraph(type_ID)->g, cur_s, end_s, &highGraph()->get_locations());
+        high_path = Planning::astar<LinkGraph,size_t>(highGraph(type_ID), cur_s, end_s);
     } else {
         //high_path = highGraph(type_ID)->rags(cur_s, end_s);
     }

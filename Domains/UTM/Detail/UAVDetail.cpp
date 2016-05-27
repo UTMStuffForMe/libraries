@@ -1,6 +1,9 @@
 // Copyright 2016 Carrie Rebhuhn
 
 #include "UAVDetail.h"
+#include <list>
+#include <map>
+#include <vector>
 
 using easymath::XY;
 using std::map;
@@ -29,11 +32,12 @@ void UAVDetail::planAbstractPath() {
     if (!on_internal_link) links_touched.insert(cur_link_ID);
     sectors_touched.insert(curSectorID());
 
-    list<int> high_path;
+    list<size_t> high_path;
     int cur_s = curSectorID();
     int end_s = endSectorID();
     if (params->_search_type_mode == UTMModes::SearchDefinition::ASTAR) {
-        high_path = Planning::astar(highGraph(type_ID)->g, cur_s, end_s, &highGraph()->get_locations());
+        high_path = Planning::astar<LinkGraph,size_t>
+            (highGraph(type_ID), cur_s, end_s);
     } else {
         //high_path = highGraph(type_ID)->rags(cur_s, end_s);
     }
@@ -55,7 +59,8 @@ void UAVDetail::planDetailPath() {
     // Get the astar low-level path
     XY next_loc = highGraph()->get_vertex_loc(nextSectorID());
 
-    std::list<XY> low_path = Planning::astar(lowGraph(curLinkID())->g, loc, next_loc);
+    std::list<XY> low_path = Planning::astar<GridGraph,easymath::XY>
+        (lowGraph(curLinkID()), loc, next_loc);
 
     // Add to target waypoints
     clear(&target_waypoints);

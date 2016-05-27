@@ -111,7 +111,7 @@ bool LinkGraph::fully_connected() {
     for (size_t i = 0; i < get_n_vertices(); i++) {
         for (size_t j = 0; j < get_n_vertices(); j++) {
             if (i == j) continue;
-            list<size_t> p = Planning::astar(*this, i, j);
+            list<size_t> p = Planning::astar<LinkGraph, size_t>(this, i, j);
             if (p.empty()) return false;
         }
     }
