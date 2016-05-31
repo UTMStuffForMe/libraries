@@ -17,23 +17,11 @@
 #include "../FileIO/FileOut.h"
 #include "Planning.h"
 
-class vertex_info {
- public:
-    size_t ID;
-    size_t x, y;
-    size_t operator[](size_t index) {
-        if (index == 0)
-            return x;
-        else
-            return y;
-    }
-};
-
 typedef boost::adjacency_list
 <boost::listS,      // edge container
     boost::vecS,        // vertex container
     boost::directedS,   // edge (u,v) can have a different weight than (v,u)
-    vertex_info,
+    boost::no_property,
     boost::property<boost::edge_weight_t, double> > mygraph_t;
 
 typedef boost::hash<mygraph_t::vertex_descriptor> node_hash;
@@ -48,7 +36,9 @@ class LinkGraph : public LinkBase {
     typedef typename LinkBase::pred_map pred_map;
     vertex_descriptor get_descriptor(size_t v) { return v; }
     size_t get_vertex_base(vertex_descriptor v) { return v; }
-    double get_x(vertex_descriptor v) { return locations[v].x; }
+    double get_x(vertex_descriptor v) {
+            return locations[v].x;
+    }
     double get_y(vertex_descriptor v) { return locations[v].y; }
 
     // More convenient types

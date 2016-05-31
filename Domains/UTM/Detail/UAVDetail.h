@@ -12,10 +12,10 @@
 class UAVDetail : public UAV {
 public:
     UAVDetail(easymath::XY start_loc, easymath::XY end_loc,
-        UTMModes::UAVType t, MultiGraph<LinkGraph> highGraph,
+        UTMModes::UAVType t, MultiGraph<LinkGraph>* highGraph,
         std::map<edge, int>* linkIDs, UTMModes* params,
-        MultiGraph<GridGraph> lowGraph);
-    MultiGraph<GridGraph> lowGraph;
+        MultiGraph<GridGraph>* lowGraph);
+    MultiGraph<GridGraph>* lowGraph;
 
 
     // Physical location of a UAV

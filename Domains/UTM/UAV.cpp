@@ -8,7 +8,7 @@
 using std::list;
 
 UAV::UAV(int start_mem, int mem_end, UTMModes::UAVType my_type,
-    MultiGraph<LinkGraph> highGraph, std::map<edge, int>* linkIDs, UTMModes* params) :
+    MultiGraph<LinkGraph>* highGraph, std::map<edge, int>* linkIDs, UTMModes* params) :
     highGraph(highGraph),
     mem(start_mem),
     mem_end(mem_end),
@@ -60,7 +60,7 @@ int UAV::nextLinkID() {
 }
 
 std::list<size_t> UAV::getBestPath() {
-    return Planning::astar<LinkGraph,size_t>(highGraph(type_ID), mem, mem_end);
+    return Planning::astar<LinkGraph,size_t>(highGraph->at(type_ID), mem, mem_end);
 }
 
 void UAV::planAbstractPath() {
@@ -71,9 +71,9 @@ void UAV::planAbstractPath() {
     int cur_s = curSectorID();
     int end_s = endSectorID();
     if (params->_search_type_mode == UTMModes::SearchDefinition::ASTAR) {
-        high_path = Planning::astar<LinkGraph,size_t>(highGraph(type_ID), cur_s, end_s);
+        high_path = Planning::astar<LinkGraph,size_t>(highGraph->at(type_ID), cur_s, end_s);
     } else {
-        //high_path = highGraph(type_ID)->rags(cur_s, end_s);
+        //high_path = highGraph->at(type_ID)->rags(cur_s, end_s);
     }
     if (high_path.empty()) {
         printf("Path not found!");
@@ -91,5 +91,5 @@ void UAV::planAbstractPath() {
 
 int UAV::getDirection() {
     // Identifies whether traveling in one of four cardinal directions
-    return highGraph()->get_direction(mem, nextSectorID());
+    return highGraph->at()->get_direction(mem, nextSectorID());
 }

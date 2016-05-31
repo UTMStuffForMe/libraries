@@ -16,7 +16,7 @@ UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
         FileIn::read2<double>("agent_map/membership_map.csv");
 
     // Planning
-    lowGraph = MultiGraph<GridGraph>(highGraph()->get_n_edges(), GridGraph(membership_map));
+    lowGraph = new MultiGraph<GridGraph>(highGraph->at()->get_n_edges(), GridGraph(membership_map));
 
     vector<XY> sector_locs(sectors.size());
     for (int i = 0; i < sectors.size(); i++) {
@@ -75,7 +75,7 @@ vector<double> UTMDomainDetail::getRewards() {
 
 size_t UTMDomainDetail::getSector(easymath::XY p) {
     // tests membership for sector, given a location
-    return lowGraph()->get_membership(p);
+    return lowGraph->at()->get_membership(p);
 }
 
 // HACK: ONLY GET PATH PLANS OF UAVS just generated

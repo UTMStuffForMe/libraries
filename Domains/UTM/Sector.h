@@ -13,7 +13,7 @@ class Sector {
      typedef std::pair<int, int> edge;
     // An area of airspace to control
     Sector(easymath::XY xy, int sectorIDset, std::vector<int> connections,
-        std::vector<easymath::XY> dest_locs, MultiGraph<LinkGraph> highGraph,
+        std::vector<easymath::XY> dest_locs, MultiGraph<LinkGraph>* highGraph,
         UTMModes* params, std::map<edge, int>* linkIDs);
     //Sector() : ID(0) {}
     ~Sector() {}

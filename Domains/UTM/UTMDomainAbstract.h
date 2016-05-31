@@ -57,7 +57,7 @@ class UTMDomainAbstract :
 
 
     // Graphs/search objects
-    MultiGraph<LinkGraph> highGraph;
+    MultiGraph<LinkGraph> *highGraph;
     RAGS* rags_map;
 
     // Base function overloads

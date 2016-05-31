@@ -33,8 +33,7 @@ public:
 //! Euclidean heuristic. Requires a class object that has functions that
 //! translate vertex descriptor to x and y locations.
 template<class G, class Gbase>
-class euclidean_heuristic : public boost::astar_heuristic<Gbase, double> {
- public:
+struct euclidean_heuristic : public boost::astar_heuristic<Gbase, double> {
     typedef typename boost::graph_traits<Gbase>::vertex_descriptor V;
     euclidean_heuristic(G* funcs, Gbase g, V goal) :
         m_goal(goal), g(g), funcs(funcs) {}

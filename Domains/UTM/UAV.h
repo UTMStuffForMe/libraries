@@ -16,7 +16,7 @@ class UAV {
     typedef std::pair<int, int> edge;
 
     UAV(int start_mem, int end_mem, UTMModes::UAVType t,
-        MultiGraph<LinkGraph> highGraph, std::map<edge, int>* linkIDs,
+        MultiGraph<LinkGraph>* highGraph, std::map<edge, int>* linkIDs,
         UTMModes* params);
 
     ~UAV() {};
@@ -83,7 +83,7 @@ protected:
     std::set<int> links_touched;  // the sectors that the UAV has touched...
 
     bool currently_in_conflict;
-    MultiGraph<LinkGraph> highGraph;  // shared with the simulator (for now);
+    MultiGraph<LinkGraph>* highGraph;  // shared with the simulator (for now);
     bool on_internal_link;
 
 };

@@ -33,7 +33,7 @@ class UTMDomainDetail :
     virtual void reset();
 
     // maps/Graph
-    MultiGraph<GridGraph> lowGraph;
+    MultiGraph<GridGraph>* lowGraph;
 
     void addConflict(UAV* u1, UAV* u2) {
         agents->metrics.at(u1->curSectorID()).local[u1->get_type()] += 0.5;

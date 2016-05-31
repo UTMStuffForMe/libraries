@@ -6,7 +6,7 @@ using easymath::XY;
 using std::vector;
 
 Sector::Sector(XY xy, int sectorIDSet, vector<int> connections,
-    vector<XY> dest_locs, MultiGraph<LinkGraph> highGraph,
+    vector<XY> dest_locs, MultiGraph<LinkGraph>* highGraph,
     UTMModes* params, std::map<edge, int>* linkIDs) :
     xy(xy), ID(sectorIDSet), connections(connections),
     generation_pt(Fix(xy, sectorIDSet, highGraph, dest_locs, params, linkIDs)) {

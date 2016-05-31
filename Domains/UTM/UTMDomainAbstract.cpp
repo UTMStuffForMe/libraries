@@ -31,27 +31,27 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
         vector<edge> edges(FileIn::read_pairs<edge>(efile));
         vector<XY> locs = FileIn::read_pairs<XY>(vfile);
 
-        highGraph = MultiGraph<LinkGraph>(n_types, LinkGraph(locs, edges));
+        highGraph = new MultiGraph<LinkGraph>(n_types, LinkGraph(locs, edges));
 
         n_sectors = locs.size();
     } else {
         // Generate a new airspace
         n_sectors = params->get_n_sectors();
-        highGraph = MultiGraph<LinkGraph>(n_types, LinkGraph(n_sectors, 200, 200));
-        highGraph()->print_graph(domain_dir);  // saves the graph
+        highGraph = new MultiGraph<LinkGraph>(n_types, LinkGraph(n_sectors, 200, 200));
+        highGraph->at()->print_graph(domain_dir);  // saves the graph
     }
     // n_links must be set after graph created
-    params->n_links = highGraph()->get_n_edges();
+    params->n_links = highGraph->at()->get_n_edges();
     n_agents = params->get_n_agents();
 
     // Link construction
     linkIDs = new map<edge, int>();
     vector<vector<int> > connections(n_sectors);
-    for (edge e : highGraph()->get_edges()) {
+    for (edge e : highGraph->at()->get_edges()) {
         int source = e.first;   // membership of origin of edge
         int target = e.second;  // membership of connected node
-        XY s_loc = highGraph()->get_vertex_loc(source);
-        XY t_loc = highGraph()->get_vertex_loc(target);
+        XY s_loc = highGraph->at()->get_vertex_loc(source);
+        XY t_loc = highGraph->at()->get_vertex_loc(target);
         int cardinal_dir = cardinal_direction(s_loc - t_loc);
         int dist = static_cast<int>(manhattan_distance(s_loc, t_loc));
         size_t cap = static_cast<size_t>(params->get_flat_capacity());
@@ -66,7 +66,7 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
     // Sector construction
     vector<XY> sector_locs;
     for (int i = 0; i < n_sectors; i++) {
-        sector_locs.push_back(highGraph()->get_vertex_loc(i));
+        sector_locs.push_back(highGraph->at()->get_vertex_loc(i));
         Sector* s = new Sector(sector_locs.back(), i, connections[i],sector_locs,highGraph,params,linkIDs);
         sectors.push_back(s);
         numUAVsAtSector.push_back(0.0);  // Brandon change
@@ -234,7 +234,7 @@ void UTMDomainAbstract::simulateStep(matrix2d agent_actions) {
     if (action_changed) {
         matrix2d w = agents->actions2weights(agent_actions);
         for (int i = 0; i < n_types; i++) {
-            highGraph(i)->set_weights(w[i]);
+            highGraph->at(i)->set_weights(w[i]);
         }
     }
 

@@ -19,8 +19,6 @@ LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim) : g(n_vertices
     locations = get_n_unique_square_points(0.0, xdim, 0.0, ydim, n_vertices);
 
     for (size_t i = 0; i < n_vertices; i++) {
-        g[i].x = static_cast<size_t>(locations[i].x);    // locate the vertices
-        g[i].y = static_cast<size_t>(locations[i].y);    // locate the vertices
         loc2mem[locations[i]] = i;  // add in reverse lookup
     }
 
@@ -49,6 +47,9 @@ const vector<LinkGraph::edge> LinkGraph::get_edges() {
 
 LinkGraph::LinkGraph(vector<XY> locs, const vector<edge> &edge_array) :
     locations(locs) {
+    for (int i = 0; i < locs.size(); i++) {
+        loc2mem[locs[i]] = i;
+    }
     g = mygraph_t(edge_array.begin(), edge_array.end(), locations.size());
     set_weights(matrix1d(edge_array.size(), 1.0));
 }

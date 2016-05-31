@@ -5,8 +5,8 @@
 
 class FixDetail : public Fix {
 public:
-    FixDetail(easymath::XY loc, int ID, MultiGraph<LinkGraph> highGraph,
-        MultiGraph<GridGraph> lowGraph,
+    FixDetail(easymath::XY loc, int ID, MultiGraph<LinkGraph>* highGraph,
+        MultiGraph<GridGraph>* lowGraph,
         std::vector<easymath::XY> dest_locs,
         UTMModes* params, std::map<std::pair<int, int>, int> *linkIDs) :
         Fix(loc, ID, highGraph,
@@ -17,7 +17,7 @@ public:
 
     {};
     ~FixDetail() {}
-    MultiGraph<GridGraph> lowGraph;
+    MultiGraph<GridGraph>* lowGraph;
     virtual UAVDetail* generate_UAV();
     virtual bool atDestinationFix(const UAVDetail &u);
 

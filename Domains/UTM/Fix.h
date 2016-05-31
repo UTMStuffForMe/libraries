@@ -7,7 +7,7 @@
 class Fix {
  public:
     typedef std::pair<int, int> edge;
-    Fix(easymath::XY loc, int ID, MultiGraph<LinkGraph> highGraph,
+    Fix(easymath::XY loc, int ID, MultiGraph<LinkGraph>* highGraph,
         std::vector<easymath::XY> dest_locs,
         UTMModes* params,
         std::map<edge, int> *linkIDs);
@@ -21,7 +21,7 @@ class Fix {
     std::map<edge, int>* linkIDs;
     virtual UAV* generate_UAV();
 
-    MultiGraph<LinkGraph> highGraph;
+    MultiGraph<LinkGraph>* highGraph;
     std::vector<easymath::XY> destination_locs;
 };
 #endif  // DOMAINS_UTM_FIX_H_

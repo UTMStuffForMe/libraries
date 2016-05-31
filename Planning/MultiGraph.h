@@ -27,8 +27,8 @@ public:
     }
     std::vector<GraphType*> layers; // This holds the set of graph layers.
     GraphType* base;                // This defines the structure of the graph.
-    GraphType* operator()(size_t index) { return layers[index]; }
-    GraphType* operator()() { return base; }
+    GraphType* at(size_t index) { return layers[index]; }
+    GraphType* at() { return base; }
 };
 
 #endif
