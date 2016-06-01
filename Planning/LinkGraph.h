@@ -30,6 +30,11 @@ typedef IBoostGraph<mygraph_t, size_t, node_hash> LinkBase;
 
 class LinkGraph : public LinkBase {
  public:
+
+     // More convenient types
+     typedef std::pair<int, int> edge;
+
+     
     //! For compliance with base type
     typedef typename LinkBase::vertex_descriptor vertex_descriptor;
     typedef typename LinkBase::dist_map dist_map;
@@ -41,8 +46,6 @@ class LinkGraph : public LinkBase {
     }
     double get_y(vertex_descriptor v) { return locations[v].y; }
 
-    // More convenient types
-    typedef std::pair<int, int> edge;
     typedef boost::graph_traits<mygraph_t>::edge_iterator edge_iter;
 
     matrix1d saved_weights;  // for blocking and unblocking sectors
@@ -55,22 +58,25 @@ class LinkGraph : public LinkBase {
     bool intersects_existing_edge(edge candidate);
 
 
- public:
     mygraph_t g;
+    LinkGraph(const LinkGraph& other) :
+        LinkGraph(other.get_locations(), other.get_edges()) {}
+
 
     LinkGraph(std::vector<easymath::XY> locations_set,
         const std::vector<edge> &edge_array);
     LinkGraph(size_t n_vertices, size_t xdim, size_t ydim);
     ~LinkGraph(void) {}
+    LinkGraph();
 
     //! Accessor functions
     const size_t get_n_vertices() { return locations.size(); }
-    const size_t get_n_edges() { return num_edges(g); }
+    size_t get_n_edges() const { return num_edges(g); }
     const easymath::XY get_vertex_loc(int vID) { return locations.at(vID); }
     const int get_membership(easymath::XY pt) { return loc2mem.at(pt); }
     const matrix1d get_weights();
-    const std::vector<edge> get_edges();
-    const std::vector<easymath::XY> get_locations() { return locations; }
+    std::vector<edge> get_edges() const;
+    std::vector<easymath::XY> get_locations() const { return locations; }
     void set_weights(matrix1d weights);
 
     const int get_direction(int m1, int m2);

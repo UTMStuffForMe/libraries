@@ -34,7 +34,7 @@ LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim) : g(n_vertices
     }
 }
 
-const vector<LinkGraph::edge> LinkGraph::get_edges() {
+vector<LinkGraph::edge> LinkGraph::get_edges() const {
     edge_iter ei, ei_end;
     vector<edge> edges_out(get_n_edges());
     int index = 0;
@@ -43,6 +43,8 @@ const vector<LinkGraph::edge> LinkGraph::get_edges() {
     }
     return edges_out;
 }
+
+LinkGraph::LinkGraph(): LinkGraph(1,1,1) {}
 
 
 LinkGraph::LinkGraph(vector<XY> locs, const vector<edge> &edge_array) :

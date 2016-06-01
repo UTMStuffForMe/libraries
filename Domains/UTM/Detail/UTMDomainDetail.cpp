@@ -16,14 +16,15 @@ UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
         FileIn::read2<double>("agent_map/membership_map.csv");
 
     // Planning
-    lowGraph = new MultiGraph<GridGraph>(highGraph->at()->get_n_edges(), GridGraph(membership_map));
+    GridGraph* base = new GridGraph(membership_map);
+    lowGraph = new MultiGraph<GridGraph>(highGraph->at()->get_n_edges(), base);
 
     vector<XY> sector_locs(sectors.size());
-    for (int i = 0; i < sectors.size(); i++) {
+    for (size_t i = 0; i < sectors.size(); i++) {
         sector_locs[i] = sectors[i]->xy;
     }
     for (Sector* s : sectors) {
-        s->generation_pt = FixDetail(s->xy, s->ID, highGraph, lowGraph, sector_locs, params, linkIDs);
+        s->generation_pt = FixDetail(s->xy, s->ID, highGraph, lowGraph, sector_locs, params);
     }
 }
 

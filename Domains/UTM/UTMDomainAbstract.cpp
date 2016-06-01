@@ -31,13 +31,29 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
         vector<edge> edges(FileIn::read_pairs<edge>(efile));
         vector<XY> locs = FileIn::read_pairs<XY>(vfile);
 
-        highGraph = new MultiGraph<LinkGraph>(n_types, LinkGraph(locs, edges));
+        LinkGraph* base = new LinkGraph(locs, edges);
+        highGraph = new MultiGraph<LinkGraph>(n_types, base);
+
+        bool fully_connected = true;
+        for (size_t i = 0; i < highGraph->at()->get_n_vertices(); i++) {
+                for (size_t j = 0; j < highGraph->at()->get_n_vertices(); j++) {
+                    if (i == j) continue;
+                    list<size_t> p = Planning::astar<LinkGraph, size_t>(highGraph->at(), i, j);
+                    if (p.empty()) {
+                        fully_connected = false;
+                        break;
+                    }
+                }
+            }
+        
+
 
         n_sectors = locs.size();
     } else {
         // Generate a new airspace
         n_sectors = params->get_n_sectors();
-        highGraph = new MultiGraph<LinkGraph>(n_types, LinkGraph(n_sectors, 200, 200));
+        LinkGraph* base = new LinkGraph(n_sectors, 200, 200);
+        highGraph = new MultiGraph<LinkGraph>(n_types, base);
         highGraph->at()->print_graph(domain_dir);  // saves the graph
     }
     // n_links must be set after graph created
@@ -67,7 +83,7 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
     vector<XY> sector_locs;
     for (int i = 0; i < n_sectors; i++) {
         sector_locs.push_back(highGraph->at()->get_vertex_loc(i));
-        Sector* s = new Sector(sector_locs.back(), i, connections[i],sector_locs,highGraph,params,linkIDs);
+        Sector* s = new Sector(sector_locs.back(), i, connections[i],sector_locs,highGraph,params);
         sectors.push_back(s);
         numUAVsAtSector.push_back(0.0);  // Brandon change
     }
@@ -79,9 +95,7 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
 
     // Fix construction
     for (Sector* s : sectors)
-        s->generation_pt = Fix(s->xy, s->ID, highGraph,
-            sector_locs,
-            params, linkIDs);
+        s->generation_pt = Fix(s->xy, s->ID, highGraph, sector_locs, params);
 }
 
 string UTMDomainAbstract::createExperimentDirectory() {
@@ -116,8 +130,7 @@ void UTMDomainAbstract::incrementUAVPath() {
     vector<UAV*> eligible;              // UAVs eligible to move to next link
     copy_if(UAVs.begin(), UAVs.end(), back_inserter(eligible), [](UAV* u) {
         if (u->at_link_end()) {
-            if (u->nextLinkID() == u->curLinkID()) {
-                u->at_destination();
+            if (u->at_destination()) {
                 return false;
             } else {
                 return true;            // At end of non-destination link
@@ -143,7 +156,7 @@ void UTMDomainAbstract::incrementUAVPath() {
             agents->add_delay(u);
 
             // Add 1 to the sector that the UAV is trying to move from
-            numUAVsAtSector[u->nextSectorID()]++;
+            numUAVsAtSector[u->get_next_sector()]++;
 
             // counterfactuals
             if (params->_reward_mode == UTMModes::RewardMode::DIFFERENCE_AVG)
@@ -165,11 +178,17 @@ void UTMDomainAbstract::try_to_move(vector<UAV*> * eligible_to_move) {
         el_size = eligible_to_move->size();
 
         vector<Link*> L = links;
+        map<edge, int>* L_IDs = linkIDs;
         eligible_to_move->erase(
             remove_if(eligible_to_move->begin(), eligible_to_move->end(),
-                [L](UAV* u) {
-            size_t n = u->nextLinkID();
-            size_t c = u->curLinkID();
+                [L,L_IDs](UAV* u) {
+            if (u->at_terminal_link()) return false;
+
+            // Get next link ID
+            size_t n =
+                L_IDs->at(edge(u->get_nth_sector(1), u->get_nth_sector(2)));
+            // Get current link ID
+            size_t c = u->get_cur_link();
             size_t t = u->get_type();
             if (!L[n]->at_capacity(t)) {
                 L[n]->move_from(u, L[c]);
@@ -185,15 +204,15 @@ matrix2d UTMDomainAbstract::getStates() {
 
     /* "NORMAL POLARITY" state
     for (UAV* u : UAVs){
-        allStates[getSector(u->loc)][u->getDirection()]+=1.0; // Adds the UAV impact on the state
+        allStates[getSector(u->loc)][u->get_travel_direction()]+=1.0; // Adds the UAV impact on the state
     }
     */
 
     // REVERSED POLARITY STATE
     /*for (UAV* u : UAVs){
         // COUNT THE UAV ONLY IF IT HAS A NEXT SECTOR IT'S GOING TO
-        if (u->nextSectorID()==u->curSectorID()) continue;
-        else allStates[u->nextSectorID()][u->getDirection()] += 1.0;
+        if (u->get_next_sector()==u->get_cur_sector()) continue;
+        else allStates[u->get_next_sector()][u->get_travel_direction()] += 1.0;
     }*/
 
     // CONGESTION STATE
@@ -201,7 +220,7 @@ matrix2d UTMDomainAbstract::getStates() {
     if (params->_agent_defn_mode == UTMModes::AgentDefinition::SECTOR) {
         vector<int> sector_congestion_count(n_agents, 0);
         for (UAV* u : UAVs) {
-            sector_congestion_count[u->curSectorID()]++;
+            sector_congestion_count[u->get_cur_sector()]++;
         }
         for (size_t i = 0; i < sectors.size(); i++) {
             for (int conn : sectors[i]->connections) {
@@ -213,7 +232,7 @@ matrix2d UTMDomainAbstract::getStates() {
         }
     } else {
         for (UAV* u : UAVs)
-            allStates[u->curLinkID()][u->get_type()]++;
+            allStates[u->get_cur_link()][u->get_type()]++;
     }
 
 
@@ -301,16 +320,16 @@ matrix3d UTMDomainAbstract::getTypeStates() {
     matrix2d state_printout = zeros(n_agents, n_state_elements);
     if (params->_agent_defn_mode == UTMModes::AgentDefinition::SECTOR) {
         for (UAV* u : UAVs) {
-            int a = u->curSectorID();
+            int a = u->get_cur_sector();
             size_t id = u->get_type();
-            int dir = u->getDirection();
+            int dir = u->get_travel_direction();
             allStates[a][id][dir] += 1.0;
             state_printout[a][dir]++;
         }
     } else {
         // link definition
         for (UAV* u : UAVs) {
-            size_t a = u->curLinkID();
+            size_t a = u->get_cur_link();
             size_t id = u->get_type();
             allStates[a][id][0] += 1.0;
         }
@@ -345,21 +364,21 @@ void UTMDomainAbstract::detectConflicts() {
 
     // Global reward SECTORS
     /*for (UAV* u: UAVs)
-        if ((cap[u->curSectorID()][u->get_type()]--)<0)
+        if ((cap[u->get_cur_sector()][u->get_type()]--)<0)
             conflict_count++;
 
     // D average SECTORS
     cap = sectorCapacity;
     for (UAV* u: UAVs)
-        if ((cap[u->curSectorID()][u->get_type()]--)<0)
+        if ((cap[u->get_cur_sector()][u->get_type()]--)<0)
             for (int j=0; j<n_types; j++)
-                sectors->at(u->curSectorID()).conflicts[j]++; // D avg
+                sectors->at(u->get_cur_sector()).conflicts[j]++; // D avg
 
 
     // D downstream SECTORS
     cap = sectorCapacity;
     for (UAV* u: UAVs)
-        if ((cap[u->curSectorID()][u->get_type()]--)<0)
+        if ((cap[u->get_cur_sector()][u->get_type()]--)<0)
             for (uint i=0; i<sectors->size(); i++)
                 if (u->sectors_touched.find(i)==u->sectors_touched.end())
                     conflict_minus_downstream[i]++;	/// D downstream
@@ -395,9 +414,9 @@ void UTMDomainAbstract::detectConflicts() {
     // D average LINKS
 /*	cap = *linkCapacity;
     for (UAV* u: UAVs)
-        if ((cap[u->curLinkID()][u->get_type()]--)<0)
+        if ((cap[u->get_cur_link()][u->get_type()]--)<0)
             for (int j=0; j<n_types; j++)
-                linkConflicts[u->curLinkID()][j]++; // D avg
+                linkConflicts[u->get_cur_link()][j]++; // D avg
     for (int i=0; i<n_links; i++)
         linkSteps[i]++; // steps of conflict accounting (for average counterfactual)
 
@@ -405,7 +424,7 @@ void UTMDomainAbstract::detectConflicts() {
     // D downstream SECTORS
     cap = *linkCapacity;
     for (UAV* u: UAVs)
-        if ((cap[u->curLinkID()][u->type_ID]--)<0)
+        if ((cap[u->get_cur_link()][u->type_ID]--)<0)
             for (int i=0; i<n_links; i++)
                 if (u->links_touched.find(i)==u->links_touched.end())
                     link_conflict_minus_downstream[i]++;	/// D downstream
@@ -468,7 +487,7 @@ void UTMDomainAbstract::absorbUAVTraffic() {
     vector<Link*> l = links;
     UAVs.erase(remove_if(UAVs.begin(), UAVs.end(), [l](UAV* u) {
         if (u->at_destination()) {
-            l[u->curLinkID()]->remove(u);
+            l[u->get_cur_link()]->remove(u);
             delete u;
             return true;
         } else {
@@ -484,7 +503,7 @@ void UTMDomainAbstract::getNewUAVTraffic() {
         list<UAV*> new_UAVs = s->generation_pt.generateTraffic(*step);
         for (UAV* u : new_UAVs) {
             UAVs.push_back(u);
-            links.at(u->curLinkID())->add(u);
+            links.at(u->get_cur_link())->add(u);
         }
     }
 }

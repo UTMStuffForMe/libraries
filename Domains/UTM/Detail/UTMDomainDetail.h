@@ -36,8 +36,8 @@ class UTMDomainDetail :
     MultiGraph<GridGraph>* lowGraph;
 
     void addConflict(UAV* u1, UAV* u2) {
-        agents->metrics.at(u1->curSectorID()).local[u1->get_type()] += 0.5;
-        agents->metrics.at(u2->curSectorID()).local[u2->get_type()] += 0.5;
+        agents->metrics.at(u1->get_cur_sector()).local[u1->get_type()] += 0.5;
+        agents->metrics.at(u2->get_cur_sector()).local[u2->get_type()] += 0.5;
     }
     size_t getSector(easymath::XY p);
 

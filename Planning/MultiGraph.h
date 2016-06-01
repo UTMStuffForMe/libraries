@@ -13,13 +13,12 @@ template <class GraphType>
 class MultiGraph {
 public:
     MultiGraph() {}
-    MultiGraph(size_t n, GraphType& base_set) :
-        base(new GraphType(base_set))
+    MultiGraph(size_t n, GraphType* base_set)
     {
+        base = base_set;
         layers = std::vector<GraphType*>(n);
-        for (size_t i = 0; i < n; i++) {
-            layers[i] = new GraphType(base_set);
-        }
+        for (size_t i = 0; i < n; i++)
+            layers[i] = new GraphType(*base);
     }
     ~MultiGraph() {
         delete base;

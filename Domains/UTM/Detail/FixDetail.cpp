@@ -20,9 +20,11 @@ UAVDetail* FixDetail::generate_UAV() {
         end_loc = destination_locs.at(ID - 1);  // go to previous
 
     int type_id_set = calls%params->get_n_types();
-    UAVDetail* u = new UAVDetail(loc, end_loc,
-        static_cast<UTMModes::UAVType>(type_id_set),
-        highGraph, linkIDs, params, lowGraph);
+    LinkGraph* high = highGraph->at(type_id_set);
+    GridGraph* low = lowGraph->at(type_id_set);
+
+    UAVDetail* u = new UAVDetail(loc, end_loc, static_cast<UTMModes::UAVType>(type_id_set), high, params, low);
+    
     u->planAbstractPath();
     return u;
 }

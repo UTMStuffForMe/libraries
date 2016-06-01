@@ -14,7 +14,7 @@ class Sector {
     // An area of airspace to control
     Sector(easymath::XY xy, int sectorIDset, std::vector<int> connections,
         std::vector<easymath::XY> dest_locs, MultiGraph<LinkGraph>* highGraph,
-        UTMModes* params, std::map<edge, int>* linkIDs);
+        UTMModes* params);
     //Sector() : ID(0) {}
     ~Sector() {}
 
@@ -64,7 +64,7 @@ class SectorAgentManager : public IAgentManager {
         // double tt = links.at(u->next_link_ID)->predicted_traversal_time()[0];
         // printf("at link %i: %fs to wait ", u->next_link_ID,tt);
         // system("pause");
-        metrics.at(u->curSectorID()).local[u->get_type()]++;
+        metrics.at(u->get_cur_sector()).local[u->get_type()]++;
     }
     void add_downstream_delay_counterfactual(UAV* u) {
         // remove the effects of the UAV for the counterfactual..

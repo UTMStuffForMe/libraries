@@ -58,7 +58,11 @@ class GridGraph : public GridBase {
     typedef typename GridBase::vertex_descriptor vertex_descriptor;
     typedef typename GridBase::dist_map dist_map;
     typedef typename GridBase::pred_map pred_map;
-    
+ 
+    GridGraph & operator =(const GridGraph &) {
+        return *this;
+    }
+
 
     typedef boost::unordered_set<vertex_descriptor, vertex_hash,vertex_equal> vertex_set;
     typedef boost::vertex_subset_complement_filter<grid, vertex_set>
@@ -96,6 +100,8 @@ class GridGraph : public GridBase {
  public:
     //! The underlying AStarGrid grid with barrier vertices filtered out
     filtered_grid g;
+
+    GridGraph(): GridGraph(easymath::zeros(1,1)) {}
 
     explicit GridGraph(const matrix2d &members);
     ~GridGraph() {}

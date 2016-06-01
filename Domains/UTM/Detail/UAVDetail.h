@@ -4,6 +4,7 @@
 
 // STL includes
 #include <queue>
+#include <map>
 
 // Library includes
 #include "../UAV.h"
@@ -11,23 +12,20 @@
 
 class UAVDetail : public UAV {
 public:
-    UAVDetail(easymath::XY start_loc, easymath::XY end_loc,
-        UTMModes::UAVType t, MultiGraph<LinkGraph>* highGraph,
-        std::map<edge, int>* linkIDs, UTMModes* params,
-        MultiGraph<GridGraph>* lowGraph);
-    MultiGraph<GridGraph>* lowGraph;
+    UAVDetail(easymath::XY start_loc, easymath::XY end_loc, UTMModes::UAVType t,
+        LinkGraph* highGraph, UTMModes* params, GridGraph* lowGraph);
+    GridGraph* lowGraph;
 
 
     // Physical location of a UAV
     easymath::XY loc;
     easymath::XY end_loc;
     std::queue<easymath::XY> target_waypoints;  // target waypoints, low-level
-    void moveTowardNextWaypoint();  // takes a time increment to move over
+    void moveTowardNextWaypoint();
 
-                                    //! Gets the sector ID from the location
-    virtual int curSectorID();
-    //! Gets the sector ID for the desired end location
-    virtual int endSectorID();
+    //! Accessor functions
+    //! Gets the sector ID from the current location
+    virtual int UAVDetail::get_cur_sector() const { return lowGraph->get_membership(loc); }
 
     void planDetailPath();
     virtual void planAbstractPath();

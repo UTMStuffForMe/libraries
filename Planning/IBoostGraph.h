@@ -10,6 +10,7 @@ class IBoostGraph {
  public:
     IBoostGraph() : pred_pmap(predecessor), dist_pmap(distance),
         weight(boost::static_property_map<double>(1)) {}
+
     typedef typename boost::graph_traits<G>::vertex_descriptor vertex_descriptor;
 
     //! Maps are vertex-to-vertex mapping.

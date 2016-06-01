@@ -78,10 +78,13 @@ std::list<V> astar(G* g, V start, V goal) {
         boost::astar_search(g->g, s, h, p);
     }
     catch (detail::found_goal) {
-        for (auto u = e; u != s; u = g->predecessor[u]) {
+        for (auto u = e; ; u = g->predecessor[u]) {
             V val = g->get_vertex_base(u);
             solution.push_back(val);
+            if (u == g->predecessor[u])
+                break;
         }
+        std::reverse(solution.begin(), solution.end());
         return solution;
     }
 

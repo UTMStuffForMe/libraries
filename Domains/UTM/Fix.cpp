@@ -11,11 +11,9 @@ using easymath::XY;
 using easymath::rand;
 
 Fix::Fix(XY loc, int ID_set, MultiGraph<LinkGraph>* highGraph,
-    vector<XY> dest_locs,
-    UTMModes* params,
-    map<edge, int> *linkIDs) :
+    vector<XY> dest_locs, UTMModes* params) :
     highGraph(highGraph), destination_locs(dest_locs), ID(ID_set),
-    loc(loc), params(params), linkIDs(linkIDs) {
+    loc(loc), params(params) {
 }
 
 
@@ -53,10 +51,10 @@ UAV* Fix::generate_UAV() {
     // Creates an equal number of each type;
     int type_id_set = calls%params->get_n_types();
     calls++;
-    UAV* u = new UAV(highGraph->at()->get_membership(loc),
-        highGraph->at()->get_membership(end_loc),
+    UAV* u = new UAV(highGraph->at(type_id_set)->get_membership(loc),
+        highGraph->at(type_id_set)->get_membership(end_loc),
         static_cast<UTMModes::UAVType>(type_id_set),
-        highGraph, linkIDs, params);
+        highGraph->at(type_id_set), params);
     u->planAbstractPath();
     return u;
 }

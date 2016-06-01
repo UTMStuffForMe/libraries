@@ -1,66 +1,42 @@
 // Copyright 2016 Carrie Rebhuhn
 
 #include "UAVDetail.h"
+
 #include <list>
-#include <map>
-#include <vector>
 
 using easymath::XY;
-using std::map;
-using std::list;
 using easystl::clear;
-using std::vector;
+using std::list;
+
 
 UAVDetail::UAVDetail(XY start_loc, XY end_loc, UTMModes::UAVType t,
-    MultiGraph<LinkGraph>* highGraph, map<edge, int>* linkIDs,
-    UTMModes* params, MultiGraph<GridGraph>* lowGraph) :
+    LinkGraph* highGraph, UTMModes* params, GridGraph* lowGraph) :
     loc(start_loc), end_loc(end_loc),
-    UAV(lowGraph->at()->get_membership(start_loc), lowGraph->at()->get_membership(end_loc),
-        t, highGraph, linkIDs, params), lowGraph(lowGraph) {
-}
-
-int UAVDetail::curSectorID() {
-    return lowGraph->at()->get_membership(loc);
-}
-
-
-int UAVDetail::endSectorID() {
-    return lowGraph->at()->get_membership(end_loc);
+    UAV(lowGraph->get_membership(start_loc), lowGraph->get_membership(end_loc),
+        t, highGraph, params), lowGraph(lowGraph) {
 }
 
 void UAVDetail::planAbstractPath() {
-    if (!on_internal_link) links_touched.insert(cur_link_ID);
-    sectors_touched.insert(curSectorID());
+    cur_sector = get_cur_sector();
+    sectors_touched.insert(cur_sector);
 
-    list<size_t> high_path;
-    int cur_s = curSectorID();
-    int end_s = endSectorID();
     if (params->_search_type_mode == UTMModes::SearchDefinition::ASTAR) {
-        high_path = Planning::astar<LinkGraph,size_t>
-            (highGraph->at(type_ID), cur_s, end_s);
+        high_path = Planning::astar<LinkGraph, size_t>
+            (highGraph, cur_sector, end_sector);
     } else {
-        //high_path = highGraph->at(type_ID)->rags(cur_s, end_s);
+        // high_path = highGraph->at(type_ID)->rags(cur_s, end_s);
     }
-
-    if (high_path_prev != high_path) {
-        pathChanged = true;
-        high_path_prev = high_path;
-    } else {
-        pathChanged = false;
-    }
-
-    next_link_ID = nextLinkID();
 }
 
 void UAVDetail::planDetailPath() {
     // Get the high-level path
-    high_path_prev = getBestPath();
+    high_path = get_best_path();
 
     // Get the astar low-level path
-    XY next_loc = highGraph->at()->get_vertex_loc(nextSectorID());
+    XY next_loc = highGraph->get_vertex_loc(get_next_sector());
 
-    std::list<XY> low_path = Planning::astar<GridGraph,easymath::XY>
-        (lowGraph->at(curLinkID()), loc, next_loc);
+    list<XY> low_path = Planning::astar<GridGraph, easymath::XY>
+        (lowGraph, loc, next_loc);
 
     // Add to target waypoints
     clear(&target_waypoints);
@@ -71,10 +47,7 @@ void UAVDetail::planDetailPath() {
 
 
 void UAVDetail::moveTowardNextWaypoint() {
-    if (!target_waypoints.size())
-        return;  // return if no waypoints
-
-    for (int i = 0; i < speed; i++) {
+    for (int i = 0; i < speed && !target_waypoints.empty(); i++) {
         loc = target_waypoints.front();
         target_waypoints.pop();
     }

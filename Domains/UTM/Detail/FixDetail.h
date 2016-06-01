@@ -6,15 +6,10 @@
 class FixDetail : public Fix {
 public:
     FixDetail(easymath::XY loc, int ID, MultiGraph<LinkGraph>* highGraph,
-        MultiGraph<GridGraph>* lowGraph,
-        std::vector<easymath::XY> dest_locs,
-        UTMModes* params, std::map<std::pair<int, int>, int> *linkIDs) :
-        Fix(loc, ID, highGraph,
-            dest_locs,
-            params, linkIDs),
+        MultiGraph<GridGraph>* lowGraph, std::vector<easymath::XY> dest_locs,UTMModes* params) :
+        Fix(loc, ID, highGraph, dest_locs,params),
         lowGraph(lowGraph), approach_threshold(params->get_dist_thresh()),
         conflict_threshold(params->get_conflict_thresh())
-
     {};
     ~FixDetail() {}
     MultiGraph<GridGraph>* lowGraph;

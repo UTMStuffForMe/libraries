@@ -94,7 +94,7 @@ matrix2d LinkAgentManager::actions2weights(matrix2d agent_actions) {
 }
 
 void LinkAgentManager::add_delay(UAV* u) {
-    metrics.at(u->curLinkID()).local[u->get_type()]++;
+    metrics.at(u->get_cur_link()).local[u->get_type()]++;
 }
 
 void LinkAgentManager::add_downstream_delay_counterfactual(UAV* u) {
