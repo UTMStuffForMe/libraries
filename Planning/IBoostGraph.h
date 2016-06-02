@@ -4,8 +4,7 @@
 
 
 //! Interface for a class to use the astar planning
-template <class G, class vertex_base, class vertex_hash,
-class vertex_equal = std::equal_to<boost::graph_traits<G>::vertex_descriptor> >
+template <class G, class vertex_base, class vertex_hash, class vertex_equal>
 class IBoostGraph {
  public:
     IBoostGraph() : pred_pmap(predecessor), dist_pmap(distance),
