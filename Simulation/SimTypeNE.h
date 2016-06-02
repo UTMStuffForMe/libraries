@@ -4,7 +4,7 @@
 #define SIMULATION_SIMTYPENE_H_
 
 #include "SimNE.h"
-#include "../Multiagent/MultiagentTypeNE.h"
+#include "Multiagent/MultiagentTypeNE.h"
 
 class SimTypeNE : public SimNE {
  public:

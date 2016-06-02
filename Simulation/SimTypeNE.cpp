@@ -4,7 +4,7 @@
 
 matrix2d SimTypeNE::getActions() {
     matrix3d S = domain->getTypeStates();  // [agent id][type id][state element
-    return reinterpret_cast<MultiagentTypeNE*>(MAS)->getActions(S);
+    return static_cast<MultiagentTypeNE*>(MAS)->getActions(S);
 }
 
 /*

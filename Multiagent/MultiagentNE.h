@@ -3,7 +3,7 @@
 #define MULTIAGENT_MULTIAGENTNE_H_
 
 #include "IMultiagentSystem.h"
-#include "../SingleAgent/NeuroEvo/NeuroEvo.h"
+#include "SingleAgent/NeuroEvo/NeuroEvo.h"
 
 class MultiagentNE :
     public IMultiagentSystem {

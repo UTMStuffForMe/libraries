@@ -6,8 +6,8 @@
 #include <memory>
 #include <vector>
 
-#include "../../Math/easymath.h"
-#include "../../FileIO/FileOut.h"
+#include "Math/easymath.h"
+#include "FileIO/FileOut.h"
 #include "UTMModesAndFiles.h"
 #include "UAV.h"
 

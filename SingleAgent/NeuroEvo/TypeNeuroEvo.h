@@ -7,13 +7,13 @@
 #include <vector>
 
 #include "NeuroEvo.h"
-#include "../../Math/easymath.h"
-#include "../IAgent.h"
+#include "Math/easymath.h"
+#include "SingleAgent/IAgent.h"
 
 class TypeNeuroEvo : public IAgent {
  public:
     TypeNeuroEvo(void);
-    TypeNeuroEvo(NeuroEvoParameters* NEParams, int nTypes) :
+    TypeNeuroEvo(NeuroEvoParameters* NEParams, size_t nTypes) :
         NETypes(std::vector<NeuroEvo*>(nTypes)),
         xi(matrix1d(nTypes, 0.0)) {
         for (NeuroEvo* ne : NETypes) {
@@ -74,12 +74,11 @@ class TypeNeuroEvo : public IAgent {
         printf("neighbor_type identification, or else this will not work. ");
         printf("Debug before continuing.");
         std::system("pause");
-        exit(10);
         return matrix1d();
     }
 
 
-    matrix1d getAction(matrix1d state, int neighbor_type) {
+    matrix1d getAction(matrix1d state, size_t neighbor_type) {
         xi[neighbor_type]++;
         return NETypes[neighbor_type]->getAction(state);
     }

@@ -8,17 +8,17 @@
 #include <list>
 #include <vector>
 
-#include "../IDomainStateful.h"
-#include "../../Math/easymath.h"
-#include "../../Planning/MultiGraph.h"
-#include "../../Planning/RAGS.h"
+#include "Domains/IDomainStateful.h"
+#include "Math/easymath.h"
+#include "Planning/MultiGraph.h"
+#include "Planning/RAGS.h"
 
 #include "UAV.h"
 #include "Sector.h"
 #include "Link.h"
 #include "Fix.h"
-#include "../../FileIO/FileOut.h"
-#include "../../FileIO/FileIn.h"
+#include "FileIO/FileOut.h"
+#include "FileIO/FileIn.h"
 
 
 class UTMDomainAbstract :

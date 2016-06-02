@@ -11,9 +11,9 @@
 #include <string>
 
 // Library includes
-#include "../../../FileIO/FileIn.h"
-#include "../UTMDomainAbstract.h"
+#include "Domains/UTM/UTMDomainAbstract.h"
 #include "FixDetail.h"
+#include "FileIO/FileIn.h"
 
 
 class UTMDomainDetail :

@@ -7,8 +7,8 @@
 #include <map>
 
 // Library includes
-#include "../UAV.h"
-#include "../../../Planning/GridGraph.h"
+#include "Domains/UTM/UAV.h"
+#include "Planning/GridGraph.h"
 
 class UAVDetail : public UAV {
 public:

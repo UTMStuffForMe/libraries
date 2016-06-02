@@ -5,7 +5,8 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "../STL/easystl.h"
+
+#include "STL/easystl.h"
 
 typedef std::vector<double> matrix1d;
 typedef std::vector<std::vector<double> > matrix2d;

@@ -7,9 +7,10 @@
 #include <chrono>
 #include <random>
 #include <string>
-#include "../../Math/easymath.h"
-#include "../../FileIO/FileIn.h"
-#include "../../FileIO/FileOut.h"
+
+#include "Math/easymath.h"
+#include "FileIO/FileIn.h"
+#include "FileIO/FileOut.h"
 
 class NeuralNet {
  public:

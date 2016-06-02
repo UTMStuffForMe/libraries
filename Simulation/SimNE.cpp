@@ -45,7 +45,6 @@ void SimNE::epoch(int ep) {
     do {
         matrix2d Rtrials;   // Trial average reward
         for (int t = 0; t < n_trials; t++) {
-            clock_t tref = clock();
             for ((*step) = 0; (*step) < domain->n_steps; (*step)++) {
                 // must be called by 'this' in order to access potential child
                 // class overload
@@ -56,9 +55,6 @@ void SimNE::epoch(int ep) {
                     // Log positions of UAVs
                     domain->logStep();
             }
-            // t= clock();
-            // printf("t=%f\n",float(t-tref)/CLOCKS_PER_SEC);
-            // tref=t;
 
             matrix1d R = domain->getRewards();
             matrix1d perf = domain->getPerformance();

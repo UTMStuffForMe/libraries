@@ -13,8 +13,8 @@
 #include <map>
 
 // library includes
-#include "../Math/easymath.h"
-#include "../FileIO/FileOut.h"
+#include "Math/easymath.h"
+#include "FileIO/FileOut.h"
 #include "Planning.h"
 
 typedef boost::adjacency_list
@@ -72,7 +72,7 @@ class LinkGraph : public LinkBase {
     //! Accessor functions
     const size_t get_n_vertices() { return locations.size(); }
     size_t get_n_edges() const { return num_edges(g); }
-    const easymath::XY get_vertex_loc(int vID) { return locations.at(vID); }
+    const easymath::XY get_vertex_loc(size_t vID) { return locations.at(vID); }
     const int get_membership(easymath::XY pt) { return loc2mem.at(pt); }
     const matrix1d get_weights();
     std::vector<edge> get_edges() const;

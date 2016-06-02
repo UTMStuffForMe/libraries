@@ -4,7 +4,7 @@
 
 #include <list>
 #include "NeuroEvo.h"
-#include "../../SingleAgent/NeuralNet/TypeNeuralNet.h"
+#include "SingleAgent/NeuralNet/TypeNeuralNet.h"
 
 class NeuroEvoTypeCrossweighted : public NeuroEvo {
  public:
@@ -24,7 +24,7 @@ class NeuroEvoTypeCrossweighted : public NeuroEvo {
         pop_member_active = population.begin();
         params->nInput = INPUT;
     }
-    int n_types, n_state_elements;
+    size_t n_types, n_state_elements;
 
     ~NeuroEvoTypeCrossweighted() {}
 
@@ -33,7 +33,7 @@ class NeuroEvoTypeCrossweighted : public NeuroEvo {
         std::list<NeuralNet*>::iterator popMember = population.begin();
         for (int i = 0; i < params->popSize; i++) {  // add k new members
             // (*popMember)->evaluation = 0.0;  // commented out so that you take parent's evaluation
-            TypeNeuralNet* m = new TypeNeuralNet(*reinterpret_cast<TypeNeuralNet*>(*popMember));  // dereference pointer AND iterator
+            TypeNeuralNet* m = new TypeNeuralNet(*static_cast<TypeNeuralNet*>(*popMember));  // dereference pointer AND iterator
             m->mutate();
             population.push_back(m);
             ++popMember;
@@ -44,13 +44,13 @@ class NeuroEvoTypeCrossweighted : public NeuroEvo {
 
     matrix1d getAction(matrix2d state) {
         matrix1d preprocessed_state(n_state_elements*n_types, 0.0);
-        int ind = 0;  // index for state;
+        size_t ind = 0;  // index for state;
         // freaky for loop makes math right
-        for (int s = 0; s < n_state_elements; s++) {
-            for (size_t t_prime = 0; t_prime < (reinterpret_cast<TypeNeuralNet*>(*pop_member_active))->preprocess_weights[0][0].size(); t_prime++) {
+        for (size_t s = 0; s < n_state_elements; s++) {
+            for (size_t t_prime = 0; t_prime < (static_cast<TypeNeuralNet*>(*pop_member_active))->preprocess_weights[0][0].size(); t_prime++) {
                 double node_sum = 0.0;
-                for (int t = 0; t < n_types; t++) {
-                    node_sum += state[t][s] * (reinterpret_cast<TypeNeuralNet*>(*pop_member_active))->preprocess_weights[t][s][t_prime];
+                for (size_t t = 0; t < n_types; t++) {
+                    node_sum += state[t][s] * (static_cast<TypeNeuralNet*>(*pop_member_active))->preprocess_weights[t][s][t_prime];
                 }
                 preprocessed_state[ind++] = node_sum;
             }

@@ -9,7 +9,7 @@
 #include <map>
 
 // libraries includes
-#include "../../Planning/LinkGraph.h"
+#include "Planning/LinkGraph.h"
 #include "UTMModesAndFiles.h"
 
 class UAV {

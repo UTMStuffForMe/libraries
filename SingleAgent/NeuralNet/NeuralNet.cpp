@@ -8,7 +8,7 @@ using easymath::sum;
 using std::vector;
 using std::string;
 
-double NeuralNet::randAddFanIn(double fan_in) {
+double NeuralNet::randAddFanIn(double) {
     // Adds random amount mutationRate% of the time,
     // amount based on fan_in and mutstd
     if (rand(0, 1) > mutationRate) {

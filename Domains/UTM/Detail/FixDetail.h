@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Fix.h"
+#include "Domains/UTM/Fix.h"
 #include "UAVDetail.h"
 
 class FixDetail : public Fix {

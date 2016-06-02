@@ -4,7 +4,7 @@
 
 #include <list>
 #include "NeuroEvo.h"
-#include "../NeuralNet/TypeNeuralNet.h"
+#include "SingleAgent/NeuralNet/TypeNeuralNet.h"
 
 class NeuroEvoTypeWeighted : public NeuroEvo {
  public:
@@ -40,7 +40,7 @@ class NeuroEvoTypeWeighted : public NeuroEvo {
             // (*popMember)->evaluation = 0.0;
             // dereference pointer AND iterator
             TypeNeuralNet* m
-                = new TypeNeuralNet(*reinterpret_cast<TypeNeuralNet*>
+                = new TypeNeuralNet(*static_cast<TypeNeuralNet*>
                     (*popMember));
             m->mutate();
             population.push_back(m);
@@ -48,17 +48,17 @@ class NeuroEvoTypeWeighted : public NeuroEvo {
         }
     }
 
-    int n_types, n_state_elements;
+    size_t n_types, n_state_elements;
 
     using NeuroEvo::getAction;  // so that the overloaded base class is seen
 
     matrix1d getAction(matrix2d state) {
         // state has elements [type][state element]
         matrix1d preprocessed_state(n_state_elements, 0.0);
-        for (int s = 0; s < n_state_elements; s++) {
-            for (int t = 0; t < n_types; t++) {
+        for (size_t s = 0; s < n_state_elements; s++) {
+            for (size_t t = 0; t < n_types; t++) {
                 preprocessed_state[s] += state[t][s]
-                    * (reinterpret_cast<TypeNeuralNet*>
+                    * (static_cast<TypeNeuralNet*>
                         (*pop_member_active))->preprocess_weights[t][s][0];
             }
         }

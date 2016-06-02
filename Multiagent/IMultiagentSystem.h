@@ -7,7 +7,7 @@
 #include <vector>
 
 // Library includes
-#include "../SingleAgent/IAgent.h"
+#include "SingleAgent/IAgent.h"
 
 //! Agents container
 class IMultiagentSystem {

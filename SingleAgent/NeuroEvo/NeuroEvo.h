@@ -8,10 +8,10 @@
 #include <list>
 #include <string>
 
-#include "../NeuralNet/NeuralNet.h"
-#include "../IAgent.h"
-#include "../../FileIO/FileIn.h"
-#include "../../FileIO/FileOut.h"
+#include "SingleAgent/NeuralNet/NeuralNet.h"
+#include "SingleAgent/IAgent.h"
+#include "FileIO/FileIn.h"
+#include "FileIO/FileOut.h"
 
 class NeuroEvoParameters {
  public:

@@ -11,8 +11,8 @@
 
 // Libraries
 #include "ISimulator.h"
-#include "../Multiagent/MultiagentNE.h"
-#include "../Math/easymath.h"
+#include "Multiagent/MultiagentNE.h"
+#include "Math/easymath.h"
 
 class SimNE : public ISimulator {
  public:

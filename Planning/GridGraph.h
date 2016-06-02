@@ -19,7 +19,7 @@
 
 #include "Planning.h"
 // from libraries
-#include "../../libraries/Math/easymath.h"
+#include "Math/easymath.h"
 
 
 

@@ -5,10 +5,10 @@
 #include <vector>
 #include <string>
 #include "MultiagentNE.h"
-#include "../SingleAgent/NeuroEvo/TypeNeuroEvo.h"
-#include "../SingleAgent/NeuroEvo/NeuroEvo.h"
-#include "../SingleAgent/NeuroEvo/NeuroEvoTypeWeighted.h"
-#include "../SingleAgent/NeuroEvo/NeuroEvoTypeCrossweighted.h"
+#include "SingleAgent/NeuroEvo/TypeNeuroEvo.h"
+#include "SingleAgent/NeuroEvo/NeuroEvo.h"
+#include "SingleAgent/NeuroEvo/NeuroEvoTypeWeighted.h"
+#include "SingleAgent/NeuroEvo/NeuroEvoTypeCrossweighted.h"
 
 
 // Container for collection of 'Type Neuro Evo' agents
@@ -40,10 +40,10 @@ class MultiagentTypeNE : public MultiagentNE {
         std::vector<bool> not_end(agents.size(), false);
         for (size_t i = 0; i < agents.size(); i++) {
             if (multiple_nets()) {
-                not_end[i] = reinterpret_cast<TypeNeuroEvo*>
+                not_end[i] = static_cast<TypeNeuroEvo*>
                     (agents[i])->selectNewMemberAll();
             } else {
-                not_end[i] = reinterpret_cast<NeuroEvo*>
+                not_end[i] = static_cast<NeuroEvo*>
                     (agents[i])->selectNewMember();
             }
         }
@@ -69,11 +69,11 @@ class MultiagentTypeNE : public MultiagentNE {
         // Specific to Evo: select survivors
         for (IAgent* a : agents) {
             if (type_mode == MULTIMIND) {
-                reinterpret_cast<TypeNeuroEvo*>(a)->selectSurvivorsAll();
+                static_cast<TypeNeuroEvo*>(a)->selectSurvivorsAll();
             } else if (type_mode == WEIGHTED ||
                 type_mode == CROSSWEIGHTED ||
                 type_mode == BLIND) {
-                reinterpret_cast<NeuroEvo*>(a)->selectSurvivors();
+                static_cast<NeuroEvo*>(a)->selectSurvivors();
             }
         }
     }

@@ -5,7 +5,7 @@
 #include <string>
 #include <boost/filesystem/operations.hpp>
 
-#include "../IDomainStateful.h"
+#include "Domains/IDomainStateful.h"
 
 class UTMModes : public IDomainStatefulParameters {
 public:

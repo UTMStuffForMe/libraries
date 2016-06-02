@@ -1,7 +1,7 @@
 #pragma once
-#include "../FileIO/FileOut.h"
-#include "../Domains/IDomainStateful.h"
-#include "../Multiagent/IMultiagentSystem.h"
+#include "FileIO/FileOut.h"
+#include "Domains/IDomainStateful.h"
+#include "Multiagent/IMultiagentSystem.h"
 
 /*
 Instructions for using ISimulator:

@@ -2,7 +2,7 @@
 #ifndef SINGLEAGENT_IAGENT_H_
 #define SINGLEAGENT_IAGENT_H_
 
-#include "../Math/easymath.h"
+#include "Math/easymath.h"
 
 class IAgent {
  public:
