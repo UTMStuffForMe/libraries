@@ -49,9 +49,9 @@ LinkGraph::LinkGraph(): LinkGraph(1,1,1) {}
 
 LinkGraph::LinkGraph(vector<XY> locs, const vector<edge> &edge_array) :
     locations(locs) {
-    for (int i = 0; i < locs.size(); i++) {
+    for (size_t i = 0; i < locs.size(); i++)
         loc2mem[locs[i]] = i;
-    }
+
     g = mygraph_t(edge_array.begin(), edge_array.end(), locations.size());
     set_weights(matrix1d(edge_array.size(), 1.0));
 }

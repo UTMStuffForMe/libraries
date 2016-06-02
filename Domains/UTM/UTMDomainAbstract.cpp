@@ -19,57 +19,46 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
         params = params_set;
 
     // Airspace construction
-    int n_sectors;
-    std::string domain_dir = filehandler->createDomainDirectory(); // NOTE: MODIFY THIS TO LOOP OVER THE DOMAIN FILES...
-    ifstream edgefile(domain_dir + "edges.csv");
-    bool fileExists = edgefile.good();
-    edgefile.close();
-    if (params->_airspace_mode == UTMModes::AirspaceMode::SAVED && fileExists) {
-        string efile = domain_dir + "edges.csv";
-        string vfile = domain_dir + "nodes.csv";
-
-        vector<edge> edges(FileIn::read_pairs<edge>(efile));
-        vector<XY> locs = FileIn::read_pairs<XY>(vfile);
+    
+    // Directories
+    string domain_dir = filehandler->createDomainDirectory(); // NOTE: MODIFY THIS TO LOOP OVER THE DOMAIN FILES...
+    string efile = domain_dir + "edges.csv";
+    string vfile = domain_dir + "nodes.csv";
+    
+    // Variables to fill 
+    vector<edge> edges;
+    vector<XY> locs;
+    if (params->_airspace_mode == UTMModes::AirspaceMode::SAVED && FileIn::file_exists(efile)) {
+        edges = FileIn::read_pairs<edge>(efile);
+        locs = FileIn::read_pairs<XY>(vfile);
 
         LinkGraph* base = new LinkGraph(locs, edges);
         highGraph = new MultiGraph<LinkGraph>(n_types, base);
-
-        bool fully_connected = true;
-        for (size_t i = 0; i < highGraph->at()->get_n_vertices(); i++) {
-                for (size_t j = 0; j < highGraph->at()->get_n_vertices(); j++) {
-                    if (i == j) continue;
-                    list<size_t> p = Planning::astar<LinkGraph, size_t>(highGraph->at(), i, j);
-                    if (p.empty()) {
-                        fully_connected = false;
-                        break;
-                    }
-                }
-            }
-        
-
-
-        n_sectors = locs.size();
     } else {
         // Generate a new airspace
-        n_sectors = params->get_n_sectors();
-        LinkGraph* base = new LinkGraph(n_sectors, 200, 200);
+        LinkGraph* base = new LinkGraph(params->get_n_sectors(), 200, 200);
         highGraph = new MultiGraph<LinkGraph>(n_types, base);
         highGraph->at()->print_graph(domain_dir);  // saves the graph
+
+        locs = highGraph->at()->get_locations();
+        edges = highGraph->at()->get_edges();
     }
+
     // n_links must be set after graph created
-    params->n_links = highGraph->at()->get_n_edges();
-    n_agents = params->get_n_agents();
+    params->n_links = edges.size();
+    n_agents = params->get_n_agents(); // must be called after n_links populated
+    int n_sectors = locs.size();
 
     // Link construction
     linkIDs = new map<edge, int>();
     vector<vector<int> > connections(n_sectors);
-    for (edge e : highGraph->at()->get_edges()) {
+    for (edge e : edges) {
         int source = e.first;   // membership of origin of edge
         int target = e.second;  // membership of connected node
-        XY s_loc = highGraph->at()->get_vertex_loc(source);
-        XY t_loc = highGraph->at()->get_vertex_loc(target);
+        XY s_loc = locs[source];
+        XY t_loc = locs[target];
         int cardinal_dir = cardinal_direction(s_loc - t_loc);
-        int dist = static_cast<int>(manhattan_distance(s_loc, t_loc));
+        int dist = static_cast<int>(euclidean_distance(s_loc, t_loc));
         size_t cap = static_cast<size_t>(params->get_flat_capacity());
         links.push_back(
             new Link(links.size(), source, target, dist,

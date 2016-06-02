@@ -8,13 +8,6 @@ A static class to print to a file.
 
 class FileOut{
 public:
-	static bool file_exists(std::string filename){
-		std::ifstream myfile(filename);
-		bool exists = myfile.good();
-		myfile.close();
-		return exists;
-	}
-
 	//! Output function for 1d vector, list, etc: anything that can be iterated over
 	template<class T>
 	static void print_vector(std::vector<T> &output, std::string file_name, bool overwrite=true,  std::string separator=","){

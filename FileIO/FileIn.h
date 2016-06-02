@@ -23,6 +23,13 @@ A static class that handles variable setting and standard file reading operation
 
 class FileIn {
  public:
+     static bool file_exists(std::string filename) {
+         std::ifstream myfile(filename);
+         bool exists = myfile.good();
+         myfile.close();
+         return exists;
+     }
+
     //! Read in pair type objects
     template<typename T>
     static std::vector<T> read_pairs(std::string file_name,

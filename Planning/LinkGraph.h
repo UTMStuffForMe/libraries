@@ -26,7 +26,7 @@ typedef boost::adjacency_list
 
 typedef boost::hash<mygraph_t::vertex_descriptor> node_hash;
 
-typedef IBoostGraph<mygraph_t, size_t, node_hash> LinkBase;
+typedef IBoostGraph<mygraph_t, size_t, node_hash, std::equal_to<size_t> > LinkBase; // requires equal_to passed in for linux compatibility
 
 class LinkGraph : public LinkBase {
  public:

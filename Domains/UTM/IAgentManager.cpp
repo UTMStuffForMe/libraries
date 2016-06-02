@@ -64,7 +64,11 @@ matrix1d IAgentManager::Gc_average() {
 }
 
 void IAgentManager::add_average_counterfactual() {
-    size_t n_types = metrics[0].local.size();
+
+    // This actually is a local reward
+    /*size_t n_types = metrics[0].local.size();
+    size_t n_agents = metrics.size();
+
     for (size_t i = 0; i < metrics.size(); i++) {
         matrix1d m = zeros(n_types);
         for (size_t j = 0; j < metrics.size(); j++) {
@@ -74,7 +78,7 @@ void IAgentManager::add_average_counterfactual() {
                 m = m + (metrics[i].local / (*steps));
         }
         metrics[i].G_avg = m;
-    }
+    }*/
 }
 
 matrix1d IAgentManager::Gc_downstream() {
