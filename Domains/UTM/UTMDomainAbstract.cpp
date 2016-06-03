@@ -492,6 +492,9 @@ void UTMDomainAbstract::getNewUAVTraffic() {
         list<UAV*> new_UAVs = s->generation_pt.generateTraffic(*step);
         for (UAV* u : new_UAVs) {
             UAVs.push_back(u);
+            // UAV initially does not have its current link set -- must define from sector pair
+            edge u_start_edge = edge(u->get_cur_sector(), u->get_next_sector());
+            u->set_cur_link_ID(linkIDs->at(u_start_edge));
             links.at(u->get_cur_link())->add(u);
         }
     }
