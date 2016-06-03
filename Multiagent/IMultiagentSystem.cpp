@@ -20,9 +20,3 @@ matrix2d IMultiagentSystem::getActions(matrix2d S) {
     }
     return A;
 }
-
-void IMultiagentSystem::updatePolicyValues(matrix1d R) {
-    for (size_t i = 0; i < agents.size(); i++) {
-        agents[i]->updatePolicyValues(R[i]);
-    }
-}

@@ -99,7 +99,7 @@ class IAgentManager {
     };
 
     //! Keeps time with simulator
-    int* steps;
+    size_t* steps;
 
     //! Resets for the next simulation call
     void reset();

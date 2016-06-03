@@ -30,7 +30,7 @@ class UTMDomainAbstract :
 
     // virtual void initialize(UTMModes* params);
 
-    virtual void synch_step(int* step_set) {
+    virtual void synch_step(size_t* step_set) {
         step = step_set;
         agents->steps = step_set;
         printf("set the step\n");

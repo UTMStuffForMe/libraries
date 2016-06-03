@@ -19,6 +19,10 @@ class IMultiagentSystem {
     std::vector<IAgent*> agents;
 
     matrix2d getActions(matrix2d S);
-    void updatePolicyValues(matrix1d R);
+    inline void updatePolicyValues(matrix1d R) {
+        for (size_t i = 0; i < agents.size(); i++) {
+            agents[i]->updatePolicyValues(R[i]);
+        }
+    }
 };
 #endif  // MULTIAGENT_IMULTIAGENTSYSTEM_H_

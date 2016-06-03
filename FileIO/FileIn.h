@@ -34,9 +34,9 @@ class FileIn {
     template<typename T>
     static std::vector<T> read_pairs(std::string file_name,
         std::string separator = STRING_UNINITIALIZED) {
-        matrix2d m = read2<double>(file_name, separator);
+        std::vector<std::vector<int> >  m = read2<int>(file_name, separator);
         std::vector<T> var;
-        for (std::vector<double> i : m) {
+        for (std::vector<int> i : m) {
             if (i.size() != 2) {
                 FileErrors::not_pair(file_name);
             } else {

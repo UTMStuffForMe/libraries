@@ -25,14 +25,12 @@ public:
 	static void unrecognized_extension(std::string extension_name){
 		std::printf("Unknown extension %s: please specify separator type. Aborting.\n",extension_name.c_str());
 		std::system("pause");
-		exit(UNRECOGNIZED_EXTENSION);
 	}
 
 	//! Error that prints, pauses, and closes the program when pair detection fails.
 	static void not_pair(std::string file_name){
 		std::printf("Error! %s does not contain pair values. Aborting.\n",file_name.c_str());
 		std::system("pause");
-		exit(NOT_PAIR);
 	}
 
 private:

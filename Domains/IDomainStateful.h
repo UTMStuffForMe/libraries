@@ -51,17 +51,17 @@ class IDomainStateful {
     virtual std::string createExperimentDirectory() = 0;
 
     //! Synchronizes the step with the rest of the sim
-    int * step;
-    virtual void synch_step(int* step) = 0;
+    size_t * step;
+    virtual void synch_step(size_t* step) = 0;
 
     // constants
     bool type_blind;
-    int n_state_elements;
-    int n_control_elements;
-    int n_steps;
-    int n_types;
+    size_t n_state_elements;
+    size_t n_control_elements;
+    size_t n_steps;
+    size_t n_types;
 
-    int n_agents;   // agents determined later!
+    size_t n_agents;   // agents determined later!
 };
 
 #endif  // DOMAINS_IDOMAINSTATEFUL_H_

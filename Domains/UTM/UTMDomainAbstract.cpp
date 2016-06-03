@@ -241,7 +241,7 @@ void UTMDomainAbstract::simulateStep(matrix2d agent_actions) {
 
     if (action_changed) {
         matrix2d w = agents->actions2weights(agent_actions);
-        for (int i = 0; i < n_types; i++) {
+        for (size_t i = 0; i < n_types; i++) {
             highGraph->at(i)->set_weights(w[i]);
         }
     }
