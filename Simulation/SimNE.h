@@ -28,7 +28,7 @@ class SimNE : public ISimulator {
     virtual void epoch(int ep);
 
     void epoch_difference(int ep);
-    void run_simulation(bool log, int suppressed_agent=-1);
+    void run_simulation(bool log, int neural_net_ID, int suppressed_agent=-1);
 
     //! Gets actions based on current state: OVERLOAD FOR TYPES
     virtual matrix2d getActions();

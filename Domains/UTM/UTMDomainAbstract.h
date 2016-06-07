@@ -19,6 +19,7 @@
 #include "Fix.h"
 #include "FileIO/FileOut.h"
 #include "FileIO/FileIn.h"
+#include "SectorAgentManager.h"
 
 
 class UTMDomainAbstract :
@@ -26,6 +27,7 @@ class UTMDomainAbstract :
  public:
     typedef std::pair<int, int> edge;
     explicit UTMDomainAbstract(UTMModes* params);
+    explicit UTMDomainAbstract(UTMModes* params, bool only_abstract);
     ~UTMDomainAbstract(void);
 
     // virtual void initialize(UTMModes* params);
@@ -52,8 +54,8 @@ class UTMDomainAbstract :
 
     // Traffic
     std::list<UAV*> UAVs;
-    void getNewUAVTraffic();
-    void absorbUAVTraffic();
+    virtual void getNewUAVTraffic();
+    virtual void absorbUAVTraffic();
 
 
     // Graphs/search objects
@@ -63,7 +65,7 @@ class UTMDomainAbstract :
     // Base function overloads
     matrix2d getStates();
     matrix3d getTypeStates();
-    void simulateStep(matrix2d agent_actions);
+    void simulateStep(matrix2d agent_actions, int neural_net_ID);
     void logStep();
     // The number of UAVs on each link, [step][linkID]
 
@@ -89,14 +91,25 @@ class UTMDomainAbstract :
 
     //! Moves all it can in the list.
     // Those eligible to move but who are blocked are left after the function.
-    void try_to_move(std::vector<UAV*> * eligible_to_move);
+    virtual void try_to_move(std::vector<UAV*> * eligible_to_move);
 
     // this has moved or something?
     // void move_UAV_to_link(UAV* u, Link* cur_link, Link* new_link);
     // handles motion of the UAV in the simulation, also includes logging
 
- private:
+protected:
     // records number of UAVs at each sector at current time step
     matrix1d numUAVsAtSector;
+
+public:
+    //~B
+    	// The UAVs that have reached their goals (mapping: sector -> UAVs that are "standing by")
+        std::map<int, std::list<UAV*> > UAVs_done;
+        std::map<int, std::list<int> > incoming_links;
+
+
+        size_t next_link(UAV* u) {
+            return linkIDs->at(edge(u->get_cur_sector(), u->get_next_sector()));
+        }
 };
 #endif  // DOMAINS_UTM_UTMDOMAINABSTRACT_H_

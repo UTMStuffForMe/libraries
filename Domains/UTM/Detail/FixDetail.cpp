@@ -1,14 +1,21 @@
 #include "FixDetail.h"
 
 using easymath::XY;
+using easymath::rand;
+using std::list;
 
 bool FixDetail::atDestinationFix(const UAVDetail &u) {
-    bool has_plan = u.target_waypoints.size() > 0;
-    bool is_next = u.target_waypoints.front() == loc;
-    bool is_close = euclidean_distance(u.loc, loc) < approach_threshold;
-    bool is_goal = u.end_loc == loc;
+    bool is_close = u.distance_to(loc) < approach_threshold;
 
-    return has_plan && is_next && is_close && is_goal;
+    return u.has_plan() && u.is_next(loc) && is_close && u.is_goal(loc);
+}
+
+UAVDetail* FixDetail::generate_UAV(int step) {
+    if (should_generate_UAV(step))
+        return generate_UAV();
+    else {
+        return NULL;
+    }
 }
 
 UAVDetail* FixDetail::generate_UAV() {
@@ -23,8 +30,6 @@ UAVDetail* FixDetail::generate_UAV() {
     LinkGraph* high = highGraph->at(type_id_set);
     GridGraph* low = lowGraph->at(type_id_set);
 
-    UAVDetail* u = new UAVDetail(loc, end_loc, static_cast<UTMModes::UAVType>(type_id_set), high, params, low);
-    
-    u->planAbstractPath();
-    return u;
+    return new UAVDetail(loc, end_loc, static_cast<UTMModes::UAVType>(type_id_set), high, params, low);
 }
+

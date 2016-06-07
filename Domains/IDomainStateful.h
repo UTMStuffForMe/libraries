@@ -42,7 +42,7 @@ class IDomainStateful {
 
     //! Returns the performance vector for a set of agents
     virtual matrix1d getPerformance() = 0;
-    virtual void simulateStep(matrix2d agent_actions) = 0;
+    virtual void simulateStep(matrix2d agent_actions, int neural_net_ID) = 0;
     virtual void reset() = 0;
     virtual void logStep() = 0;
     virtual void exportStepsOfTeam(int team, std::string suffix) = 0;

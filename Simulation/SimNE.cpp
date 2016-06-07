@@ -50,13 +50,14 @@ void SimNE::runExperimentDifference() {
     }
 }
 
-void SimNE::run_simulation(bool log, int suppressed_agent) {
+void SimNE::run_simulation(bool log, int neural_net, int suppressed_agent) {
     for ((*step) = 0; (*step) < domain->n_steps; (*step)++) {
         matrix2d A = this->getActions();
         if (suppressed_agent >= 0) {
             A[suppressed_agent] = easymath::zeros(A[suppressed_agent].size());
         }
-        domain->simulateStep(A);
+        domain->simulateStep(A, neural_net);
+        
         if (log)
             domain->logStep();
     }
@@ -66,8 +67,9 @@ void SimNE::epoch_difference(int ep) {
     printf("Epoch %i", ep);
     SimNE::accounting accounts = SimNE::accounting();
     reinterpret_cast<MultiagentNE*>(MAS)->generateNewMembers();
+    int neural_net_ID = 0;
     do {
-        run_simulation(false);
+        run_simulation(neural_net_ID, false);
         double G = domain->getPerformance()[0];
         domain->reset();
         matrix1d D(MAS->agents.size(), 0.0);
@@ -75,12 +77,13 @@ void SimNE::epoch_difference(int ep) {
         accounts.update(domain->getRewards(), domain->getPerformance());
 
         for (size_t i = 0; i < MAS->agents.size(); i++) {
-            run_simulation(false, i); // agent i is suppressed
+            run_simulation(false, neural_net_ID, i);  // agent i suppressed
             double Gc = domain->getPerformance()[0];
 
             D[i] = G - Gc;
             domain->reset();
         }
+        neural_net_ID++;
         MAS->updatePolicyValues(D);
     } while (reinterpret_cast<MultiagentNE*>(MAS)->setNextPopMembers());
     reinterpret_cast<MultiagentNE*>(MAS)->selectSurvivors();
@@ -95,9 +98,10 @@ void SimNE::epoch(int ep) {
     reinterpret_cast<MultiagentNE*>(MAS)->generateNewMembers();
     SimNE::accounting accounts = SimNE::accounting();
 
+    int n = 0; // neural net number
     do {
         // Gets the g
-        run_simulation(log);
+        run_simulation(log, n++);
         matrix1d R = domain->getRewards();
         matrix1d perf = domain->getPerformance();
 

@@ -21,13 +21,21 @@ class Fix {
 
     ~Fix() {}
     UTMModes* params;
-    std::list<UAV*> generateTraffic(int step);
     int ID;
     easymath::XY loc;
-    virtual UAV* generate_UAV();
+
+    virtual UAV* generate_UAV(int step);
+    
+    // A pointer to a list of UAVs that have arrived at the fix as their destination ~B
+    std::list<UAV*> * UAVs_stationed;
 
     MultiGraph<LinkGraph>* highGraph;
     std::vector<easymath::XY> destination_locs;
+
+protected:
+    virtual UAV* generate_UAV();
+    bool should_generate_UAV(int step);
+
 };
 #endif  // DOMAINS_UTM_FIX_H_
 

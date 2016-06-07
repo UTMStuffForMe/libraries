@@ -17,6 +17,13 @@ class Link {
 
      int number_over_capacity(size_t type_ID);
     std::vector<std::list<UAV*> > traffic;
+    size_t count_traffic() {
+        int count = 0;
+        for (std::list<UAV*> t : traffic) {
+            count += t.size();
+        }
+        return count;
+    }
 
 
     //! Returns the predicted amount of time it would take to cross the node if

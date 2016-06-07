@@ -18,6 +18,7 @@ public:
         _agent_defn_mode(UTMModes::AgentDefinition::LINK),
         _reward_type_mode(UTMModes::RewardType::DELAY),
         _search_type_mode(UTMModes::SearchDefinition::ASTAR),
+        _disposal_mode(UTMModes::DisposalMode::KEEP),
         // Constants defaults
         square_reward(false),
         n_sectors(5),
@@ -25,6 +26,12 @@ public:
         domain_num(-1)
     {};
     ~UTMModes() {}
+
+    	// DISPOSAL ~B
+        	// KEEP means when UAVs reach their goal, they are removed from the system temporarily
+        	// DESTROY removes permanently UAVs that have reached their goals
+        enum class DisposalMode { KEEP, DESTROY };
+        DisposalMode _disposal_mode;
 
     int domain_num;
     double alpha; // amount that a neural network impacts the system
