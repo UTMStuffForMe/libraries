@@ -20,7 +20,7 @@ public:
         _search_type_mode(UTMModes::SearchDefinition::ASTAR),
         // Constants defaults
         square_reward(false),
-        n_sectors(5),
+        n_sectors(20),
         alpha(1000.0),
         domain_num(-1)
     {};

@@ -18,6 +18,9 @@ class UAV {
     environment through planning. Planning is done through boost.
     */
 
+public:
+    int ID;  //! const in run, but based on non-constant variable
+
  protected:
     // Typedefs
     typedef std::pair<int, int> edge;
@@ -29,13 +32,14 @@ class UAV {
     const double speed;  // connected to type_ID
     const int end_sector;
     LinkGraph* highGraph;  //! shared with the simulator (for now)--non-constant subfunctions
-    int ID;  //! const in run, but based on non-constant variable
-
+    
 
     // Non-constant
     int cur_sector, next_sector;
     std::list<size_t> high_path;
     int cur_link_ID, next_link_ID;
+
+public:
     int t;
     std::set<int> sectors_touched, links_touched;
 
@@ -64,7 +68,6 @@ public:
     int get_cur_link() const { return cur_link_ID; }
     bool at_link_end() const { return t <= 0; }
     bool sector_touched(int sID) const { return sectors_touched.count(sID) > 0; }
-    bool at_destination() const { return cur_sector == end_sector; }
     bool at_terminal_link() const { return high_path.size() <= 2; }
     int get_travel_direction() const { return highGraph->get_direction(cur_sector, get_next_sector()); }
     int get_wait() const { return t; }
@@ -78,7 +81,9 @@ public:
     //! Sets the current link ID based on passed value
     virtual void planAbstractPath();
     void set_cur_link_ID(int link_ID) { cur_link_ID = link_ID; }
-    void set_cur_sector_ID(int sID) { cur_sector = sID; }
+    void set_cur_sector_ID(int sID) {
+        cur_sector = sID;
+    }
     void set_wait(int time) { t = time; }
     void decrement_wait() { t--; }
 };

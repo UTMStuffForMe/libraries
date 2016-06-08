@@ -27,7 +27,7 @@ void remove_erase_if(Container stl, UnaryPredicate pred) {
 }
 
 template <class Container, class T>
-void remove_element(Container stl, T el){
+void remove_element(Container stl, T el) {
     stl.erase(std::find(stl.begin(), stl.end(), el));
 }
 }  // namespace easystl

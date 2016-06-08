@@ -8,10 +8,11 @@
 
 class SimTypeNE : public SimNE {
  public:
-    SimTypeNE(IDomainStateful *domain, MultiagentNE* MAS,
+    SimTypeNE(IDomainStateful *domain, MultiagentTypeNE* MAS,
         MultiagentTypeNE::TypeHandling type_mode);
     ~SimTypeNE(void);
 
+    MultiagentTypeNE* MAS;
     NeuroEvoParameters* NE_params;
     MultiagentTypeNE::TypeHandling type_mode;
     virtual matrix2d getActions();

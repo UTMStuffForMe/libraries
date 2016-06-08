@@ -58,7 +58,8 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set) :
         XY s_loc = locs[source];
         XY t_loc = locs[target];
         int cardinal_dir = cardinal_direction(s_loc - t_loc);
-        int dist = static_cast<int>(euclidean_distance(s_loc, t_loc));
+        int dist = static_cast<int>(euclidean_distance(s_loc, t_loc)/10.0);
+        if (dist == 0) dist = 1;
         size_t cap = static_cast<size_t>(params->get_flat_capacity());
         links.push_back(
             new Link(links.size(), source, target, dist,
@@ -119,7 +120,7 @@ void UTMDomainAbstract::incrementUAVPath() {
     vector<UAV*> eligible;              // UAVs eligible to move to next link
     copy_if(UAVs.begin(), UAVs.end(), back_inserter(eligible), [](UAV* u) {
         if (u->at_link_end()) {
-            if (u->at_destination()) {
+            if (u->at_terminal_link()) {
                 return false;
             } else {
                 return true;            // At end of non-destination link
@@ -167,20 +168,37 @@ void UTMDomainAbstract::try_to_move(vector<UAV*> * eligible_to_move) {
         el_size = eligible_to_move->size();
 
         vector<Link*> L = links;
+        
         map<edge, int>* L_IDs = linkIDs;
         eligible_to_move->erase(
             remove_if(eligible_to_move->begin(), eligible_to_move->end(),
                 [L,L_IDs](UAV* u) {
-            if (u->at_terminal_link()) return false;
+
+            //printf("Got here");
+            if (u->at_terminal_link()) {
+                return false;
+            }
 
             // Get next link ID
-            size_t n =
-                L_IDs->at(edge(u->get_nth_sector(1), u->get_nth_sector(2)));
+            size_t n = L_IDs->at(edge(u->get_nth_sector(1), u->get_nth_sector(2)));
             // Get current link ID
             size_t c = u->get_cur_link();
             size_t t = u->get_type();
+
+            //printf("\n...%i,%i,%i... ", n, c, t);
+
+            //printf("UAV %i wants to hop from %i  to link %i. Link % has ",u->ID,c, n,n);
+            //for (list<UAV*> tout : L[n]->traffic) {
+                //for (UAV* t : tout) {
+                //    printf("%i: ", t->ID);
+              //  }
+
+            //}
+
             if (!L[n]->at_capacity(t)) {
                 L[n]->move_from(u, L[c]);
+                //printf("--success!\n");
+                //system("pause");
                 return true;
             } else {
                 return false; } } ),
@@ -257,6 +275,9 @@ void UTMDomainAbstract::simulateStep(matrix2d agent_actions) {
     incrementUAVPath();
     if (params->_reward_type_mode == UTMModes::RewardType::CONFLICTS)
         detectConflicts();
+
+    // At end of the step
+    //printf("UAVS:%i\n", UAVs.size());
 }
 
 // Records information about a single step in the domain
@@ -475,7 +496,7 @@ void UTMDomainAbstract::absorbUAVTraffic() {
     // Deletes UAVs
     vector<Link*> l = links;
     UAVs.erase(remove_if(UAVs.begin(), UAVs.end(), [l](UAV* u) {
-        if (u->at_destination()) {
+        if (u->at_link_end() &&  u->at_terminal_link()) {
             l[u->get_cur_link()]->remove(u);
             delete u;
             return true;
@@ -492,9 +513,7 @@ void UTMDomainAbstract::getNewUAVTraffic() {
         list<UAV*> new_UAVs = s->generation_pt.generateTraffic(*step);
         for (UAV* u : new_UAVs) {
             UAVs.push_back(u);
-            // UAV initially does not have its current link set -- must define from sector pair
-            edge u_start_edge = edge(u->get_cur_sector(), u->get_next_sector());
-            u->set_cur_link_ID(linkIDs->at(u_start_edge));
+            u->set_cur_link_ID(linkIDs->at(edge(u->get_nth_sector(0),u->get_nth_sector(1))));
             links.at(u->get_cur_link())->add(u);
         }
     }

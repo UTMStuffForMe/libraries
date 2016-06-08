@@ -1,5 +1,5 @@
 // Copyright Carrie Rebhuhn 2016
-#include "easymath.h"
+#include "Math/easymath.h"
 #include <set>
 #include <vector>
 #include <utility>

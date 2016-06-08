@@ -56,9 +56,12 @@ void Link::move_from(UAV* u, Link* l) {
 
     // Remove from previous node (l)
     l->remove(u);
+
+    // Replan
+    u->planAbstractPath();
 }
 
-void Link::add(UAV* u) {
+void Link::add(UAV* u){
     u->set_wait(time);
     traffic.at(u->get_type()).push_back(u);
     u->set_cur_link_ID(ID);

@@ -18,6 +18,7 @@ class SimNE : public ISimulator {
  public:
     // SimNE(IDomainStateful* domain);
     SimNE(IDomainStateful* domain, MultiagentNE* MAS);
+    MultiagentNE* MAS;
     virtual ~SimNE(void);
 
     static const int n_epochs = 100;
@@ -28,12 +29,15 @@ class SimNE : public ISimulator {
     virtual void epoch(int ep);
 
     void epoch_difference(int ep);
-    void run_simulation(bool log, int suppressed_agent=-1);
+    void epoch_difference_replay(int ep);
+    void run_simulation(bool log, int suppressed_agent = -1);
+    void run_simulation(bool log, matrix3d& actions_recorded, int suppressed_agent = -1);
 
     //! Gets actions based on current state: OVERLOAD FOR TYPES
     virtual matrix2d getActions();
     void runExperimentDifference();
-    struct accounting{
+    void runExperimentDifferenceReplay();
+    struct accounting {
         accounting() {
             best_run = -DBL_MAX;
             best_run_performance = -DBL_MAX;
