@@ -96,7 +96,7 @@ void SimNE::run_simulation(bool log, int suppressed_agent) {
         if (suppressed_agent >= 0) {
             A[suppressed_agent] = easymath::zeros(A[suppressed_agent].size());
         }
-        domain->simulateStep(A, neural_net);
+        domain->simulateStep(A);
         
         if (log)
             domain->logStep();
@@ -161,7 +161,6 @@ void SimNE::epoch_difference_replay(int ep) {
             printf("D_%i=%f,", i, D[i]);
             domain->reset();
         }
-        neural_net_ID++;
         MAS->updatePolicyValues(D);
     } while (MAS->setNextPopMembers());
     MAS->selectSurvivors();

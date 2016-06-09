@@ -60,9 +60,9 @@ class UTMDomainDetail : public UTMDomainAbstract {
     virtual void getNewUAVTraffic();
 
     //~ C+B
-    virtual void simulateStep(matrix2d agent_actions, int neural_net_ID) {
-        UTMDomainAbstract::simulateStep(agent_actions, neural_net_ID);
-        exportUAVLocations(neural_net_ID);
+    virtual void simulateStep(matrix2d agent_actions) {
+        UTMDomainAbstract::simulateStep(agent_actions);
+        //exportUAVLocations(neural_net_ID);
     }
 };
 #endif  // DOMAINS_UTM_UTMDOMAINDETAIL_H_

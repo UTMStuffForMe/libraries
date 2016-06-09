@@ -135,12 +135,12 @@ void UTMDomainAbstract::incrementUAVPath() {
             if (u->at_terminal_link()) {
                 return false;
             } else {
-            // TYPE IMPLEMENTATION
-            for (size_t i = 0; i <= u->get_type(); i++)
-                u->decrement_wait();
-            return false;
-        }
-    });
+                // TYPE IMPLEMENTATION
+                for (size_t i = 0; i <= u->get_type(); i++)
+                    u->decrement_wait();
+                return false;
+            }
+        }});
 
     if (eligible.empty()) {
         return;
@@ -259,7 +259,7 @@ matrix2d UTMDomainAbstract::getStates() {
 }
 
 
-void UTMDomainAbstract::simulateStep(matrix2d agent_actions, int) {
+void UTMDomainAbstract::simulateStep(matrix2d agent_actions) {
     // Alter the cost maps (agent actions)
     agents->logAgentActions(agent_actions);
     bool action_changed = agents->last_action_different();

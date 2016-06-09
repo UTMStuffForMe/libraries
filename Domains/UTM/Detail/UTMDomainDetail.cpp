@@ -265,7 +265,7 @@ void UTMDomainDetail::absorbUAVTraffic() {
             while (true)
             {
                 done = find_if(UAVs.begin(), UAVs.end(), [l, S, s](UAVDetail *u) {
-                    if (u->at_destination()) {
+                    if (u->at_terminal_link() && u->at_link_end()) {
                         FixDetail* fix = S[u->get_cur_sector()]->generation_pt; // note: may want to move this to internal to fixes, for now making generation pt public
                         if (fix->atDestinationFix(*u)) {
                             l[u->get_cur_link()]->remove(u);
@@ -291,7 +291,7 @@ void UTMDomainDetail::absorbUAVTraffic() {
 
     } else { // just get rid of UAVs forever if they reach their respective goals
         UAVs.erase(remove_if(UAVs.begin(), UAVs.end(), [l, S](UAVDetail* u) {
-            if (u->at_destination()) {
+            if (u->at_terminal_link() && u->at_link_end()) {
                 FixDetail* fix = (FixDetail*)S[u->get_cur_sector()]->generation_pt;
                 if (fix->atDestinationFix(*u)) {
                     l[u->get_cur_link()]->remove(u);

@@ -6,7 +6,7 @@
 
 class IAgent {
  public:
-    IAgent(void);
+     IAgent(void) {};
     virtual ~IAgent(void) {}
 
     // Gets an action given a state

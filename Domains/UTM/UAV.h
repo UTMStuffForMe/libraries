@@ -33,7 +33,6 @@ public:
     const double speed;  // connected to type_ID
     const int end_sector;
     LinkGraph* highGraph;  //! shared with the simulator (for now)--non-constant subfunctions
-    int ID;  //! const in run, but based on non-constant variable
 
     // Non-constant
     int cur_sector, next_sector;

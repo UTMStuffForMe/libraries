@@ -65,7 +65,7 @@ class UTMDomainAbstract :
     // Base function overloads
     matrix2d getStates();
     matrix3d getTypeStates();
-    void simulateStep(matrix2d agent_actions, int neural_net_ID);
+    void simulateStep(matrix2d agent_actions);
     void logStep();
     // The number of UAVs on each link, [step][linkID]
 

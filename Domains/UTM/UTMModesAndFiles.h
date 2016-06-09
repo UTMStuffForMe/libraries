@@ -21,6 +21,7 @@ public:
         // Constants defaults
         square_reward(false),
         n_sectors(20),
+        _disposal_mode(UTMModes::DisposalMode::KEEP),
         alpha(1000.0),
         domain_num(-1)
     {};
@@ -28,6 +29,8 @@ public:
 
     int domain_num;
     double alpha; // amount that a neural network impacts the system
+    enum class DisposalMode {KEEP, TRASH};
+    DisposalMode _disposal_mode;
 
     // OPTION HERE FOR ONE AGENT PER LINK
     enum class AgentDefinition { SECTOR, LINK };
