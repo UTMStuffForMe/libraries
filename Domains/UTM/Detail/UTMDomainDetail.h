@@ -12,25 +12,30 @@
 
 // Library includes
 #include "Domains/UTM/UTMDomainAbstract.h"
-#include "FixDetail.h"
+#include "SectorDetail.h"
 #include "FileIO/FileIn.h"
 
 
-class UTMDomainDetail :
-    public UTMDomainAbstract {
+class UTMDomainDetail : public UTMDomainAbstract {
  public:
     explicit UTMDomainDetail(UTMModes* params_set);
-    virtual ~UTMDomainDetail(void);
+    virtual ~UTMDomainDetail() {};
+
+    // Modified objects for child class
+    std::vector<SectorDetail*> sectors;
+    std::list<UAVDetail*> UAVs;
+    std::map<int, std::list<UAVDetail*> > UAVs_done;
 
     // Base function overloads
     virtual matrix1d getRewards();
     virtual matrix1d getPerformance();
     virtual void getPathPlans();  // note: when is this event?
-    virtual void getPathPlans(const std::list<UAV*> &new_UAVs);
+    virtual void getPathPlans(const std::list<UAVDetail*> &new_UAVs);
     virtual void exportLog(std::string fid, double G);
     virtual void detectConflicts();
     virtual void incrementUAVPath();
     virtual void reset();
+
 
     // maps/Graph
     MultiGraph<GridGraph>* lowGraph;
@@ -48,5 +53,16 @@ class UTMDomainDetail :
     //! twice as long because there are x- and y-values
     matrix2d UAVLocations;
     void exportUAVLocations(int fileID);
+
+    //~B
+    virtual void try_to_move(std::vector<UAVDetail*> * eligible_to_move);
+    virtual void absorbUAVTraffic();
+    virtual void getNewUAVTraffic();
+
+    //~ C+B
+    virtual void simulateStep(matrix2d agent_actions, int neural_net_ID) {
+        UTMDomainAbstract::simulateStep(agent_actions, neural_net_ID);
+        exportUAVLocations(neural_net_ID);
+    }
 };
 #endif  // DOMAINS_UTM_UTMDOMAINDETAIL_H_

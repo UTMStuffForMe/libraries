@@ -7,7 +7,7 @@ using std::vector;
 using easymath::XY;
 using easymath::operator <;
 
-GridGraph::GridGraph(barrier_grid obstacle_map) :
+GridGraph::GridGraph(barrier_grid obstacle_map) : GridBase(),
     m_grid(create_grid(obstacle_map.size(), obstacle_map[0].size())),
     g(create_barrier_grid()) {
     /**
@@ -27,7 +27,7 @@ GridGraph::GridGraph(barrier_grid obstacle_map) :
     }
 }
 
-GridGraph::GridGraph(const matrix2d &members) :
+GridGraph::GridGraph(const matrix2d &members) : GridBase(),
     m_grid(create_grid(members.size(), members[0].size())),
     g(create_barrier_grid()), members(members) {
 }

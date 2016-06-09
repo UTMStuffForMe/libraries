@@ -25,7 +25,7 @@ void SimNE::runExperiment() {
 #endif
 
         printf("Epoch %i took %i seconds.\n", ep, size_t(epoch_time));
-        std::cout << "Estimated run end time: " << end_clock_time << std::endl;
+         std::cout << "Estimated run end time: " << end_clock_time << std::endl;
     }
 }
 
@@ -96,7 +96,8 @@ void SimNE::run_simulation(bool log, int suppressed_agent) {
         if (suppressed_agent >= 0) {
             A[suppressed_agent] = easymath::zeros(A[suppressed_agent].size());
         }
-        domain->simulateStep(A);
+        domain->simulateStep(A, neural_net);
+        
         if (log)
             domain->logStep();
     }
@@ -122,7 +123,7 @@ void SimNE::epoch_difference(int ep) {
 
             D[i] = G - Gc;
             printf("D_%i=%f,", i, D[i]);
-            domain->reset();
+        domain->reset();
         }
         MAS->updatePolicyValues(D);
     } while (MAS->setNextPopMembers());
@@ -147,7 +148,7 @@ void SimNE::epoch_difference_replay(int ep) {
         double G = domain->getPerformance()[0];
         matrix1d D(MAS->agents.size(), 0.0);
 
-        accounts.update(domain->getRewards(), domain->getPerformance());
+        accounts.update(matrix1d(MAS->agents.size(), G), matrix1d(MAS->agents.size(), G));
 
         domain->reset();
         for (size_t i = 0; i < MAS->agents.size(); i++) {
@@ -160,6 +161,7 @@ void SimNE::epoch_difference_replay(int ep) {
             printf("D_%i=%f,", i, D[i]);
             domain->reset();
         }
+        neural_net_ID++;
         MAS->updatePolicyValues(D);
     } while (MAS->setNextPopMembers());
     MAS->selectSurvivors();
@@ -174,9 +176,10 @@ void SimNE::epoch(int ep) {
     MAS->generateNewMembers();
     SimNE::accounting accounts = SimNE::accounting();
 
+    int n = 0; // neural net number
     do {
         // Gets the g
-        run_simulation(log);
+        run_simulation(log, n++);
         matrix1d R = domain->getRewards();
         matrix1d perf = domain->getPerformance();
 

@@ -16,28 +16,30 @@ Fix::Fix(XY loc, int ID_set, MultiGraph<LinkGraph>* highGraph,
     loc(loc), params(params) {
 }
 
-
-list<UAV* > Fix::generateTraffic(int step) {
-    // Creates a new UAV in the world
-    std::list<UAV* > newTraffic;
-
-    switch (params->_traffic_mode) {
-    case UTMModes::TrafficMode::PROBABILISTIC:
-        if (rand(0, 1) > params->get_p_gen())  // Doesn't generate a UAV
-            return newTraffic;
-        break;
-    case UTMModes::TrafficMode::DETERMINISTIC:
-        if (step%params->get_gen_rate() != 0)  // Doesn't generate a UAV
-            return newTraffic;
-        break;
-    default:
-        return newTraffic;
+bool Fix::should_generate_UAV(int step) {
+    if (params->_traffic_mode == UTMModes::TrafficMode::PROBABILISTIC) {
+        double pnum = rand(0, 1);
+        double pgen = params->get_p_gen();
+        if (pnum > pgen)
+            return false;
+        else
+            return true;
+    } else {
+        // deterministic
+        int genrate = params->get_gen_rate();
+        if (step%genrate != 0)
+            return false;
+        else
+            return true;
     }
+}
 
-    UAV* u = generate_UAV();
-    newTraffic.push_back(u);
-
-    return newTraffic;
+UAV* Fix::generate_UAV(int step) {
+    // Creates a new UAV in the world
+    if (should_generate_UAV(step))
+        return generate_UAV();
+    else
+        return NULL;
 }
 
 UAV* Fix::generate_UAV() {
@@ -55,6 +57,5 @@ UAV* Fix::generate_UAV() {
         highGraph->at(type_id_set)->get_membership(end_loc),
         static_cast<UTMModes::UAVType>(type_id_set),
         highGraph->at(type_id_set), params);
-    u->planAbstractPath();
     return u;
 }
