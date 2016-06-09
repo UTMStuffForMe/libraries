@@ -69,13 +69,14 @@ void SimNE::epoch_difference(int ep) {
     reinterpret_cast<MultiagentNE*>(MAS)->generateNewMembers();
     int neural_net_ID = 0;
     do {
-        run_simulation(neural_net_ID, false);
+        run_simulation(false, neural_net_ID);
         double G = domain->getPerformance()[0];
+        printf("G=%f\n",G);
         domain->reset();
         matrix1d D(MAS->agents.size(), 0.0);
 
-        accounts.update(domain->getRewards(), domain->getPerformance());
-
+        accounts.update(matrix1d(MAS->agents.size(), G), matrix1d(MAS->agents.size(), G));
+        
         for (size_t i = 0; i < MAS->agents.size(); i++) {
             run_simulation(false, neural_net_ID, i);  // agent i suppressed
             double Gc = domain->getPerformance()[0];

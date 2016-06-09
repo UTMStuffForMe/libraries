@@ -48,7 +48,7 @@ LinkGraph::LinkGraph(): LinkGraph(1,1,1) {}
 
 
 LinkGraph::LinkGraph(vector<XY> locs, const vector<edge> &edge_array) :
-    locations(locs) {
+    LinkBase(), locations(locs) {
     for (size_t i = 0; i < locs.size(); i++)
         loc2mem[locs[i]] = i;
 

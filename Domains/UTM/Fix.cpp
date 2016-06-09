@@ -36,10 +36,10 @@ bool Fix::should_generate_UAV(int step) {
 
 UAV* Fix::generate_UAV(int step) {
     // Creates a new UAV in the world
-    if (!should_generate_UAV(step))
+    if (should_generate_UAV(step))
+        return generate_UAV();
+    else
         return NULL;
-
-    return generate_UAV();
 }
 
 UAV* Fix::generate_UAV() {

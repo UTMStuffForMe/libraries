@@ -24,8 +24,9 @@ public:
     explicit astar_goal_visitor(V goal) : m_goal(goal) {}
     astar_goal_visitor() {}
     void examine_vertex(V u, G) {
-        if (u == m_goal)
+        if (u == m_goal) {
             throw found_goal();
+        }
     }
     V m_goal;
 };
@@ -58,6 +59,8 @@ auto get_euclidean_heuristic(G* funcs, Gbase g, V v) {
 //! Gets the bgl named params necessary for astar search
 template<class G, class Gbase, class V>
 auto get_params(G* GraphWrapper, const Gbase&, const V& goal) {
+    GraphWrapper->pred_pmap = boost::associative_property_map<G::pred_map>(GraphWrapper->predecessor);
+
     return boost::weight_map(GraphWrapper->weight)
         .predecessor_map(GraphWrapper->pred_pmap)
         .distance_map(GraphWrapper->dist_pmap)
@@ -78,10 +81,10 @@ std::list<V> astar(G* g, V start, V goal) {
         boost::astar_search(g->g, s, h, p);
     }
     catch (detail::found_goal) {
-        for (auto u = e; ; u = g->predecessor[u]) {
+        for (auto u = e; ; u = g->predecessor.at(u)) {
             V val = g->get_vertex_base(u);
             solution.push_back(val);
-            if (u == g->predecessor[u])
+            if (u == g->predecessor.at(u))
                 break;
         }
         std::reverse(solution.begin(), solution.end());

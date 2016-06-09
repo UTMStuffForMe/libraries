@@ -12,7 +12,7 @@ public:
     UTMModes() :
         // Mode defaults
         //_reward_mode(UTMModes::RewardMode::GLOBAL),
-        _reward_mode(UTMModes::RewardMode::DIFFERENCE_AVG),
+        _reward_mode(UTMModes::RewardMode::GLOBAL),
         _airspace_mode(UTMModes::AirspaceMode::SAVED),
         _traffic_mode(UTMModes::TrafficMode::DETERMINISTIC),
         _agent_defn_mode(UTMModes::AgentDefinition::LINK),
@@ -21,7 +21,7 @@ public:
         _disposal_mode(UTMModes::DisposalMode::KEEP),
         // Constants defaults
         square_reward(false),
-        n_sectors(5),
+        n_sectors(15),
         alpha(1000.0),
         domain_num(-1)
     {};

@@ -30,6 +30,7 @@ MultiagentTypeNE::MultiagentTypeNE(int n_agents, NeuroEvoParameters* NE_params,
         case BLIND:
         {
             *a = NeuroEvo(NE_params);
+            break;
         }
         default:
             printf("Error: invalid type handling mode.");
