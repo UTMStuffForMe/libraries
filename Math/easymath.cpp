@@ -20,13 +20,14 @@ size_t get_nearest_square(size_t n) {
     return static_cast<size_t>(pow(ceil(sqrt(n)), 2));
 }
 
-std::pair<int, int> ind2sub(const int sub, const int cols, const int rows) {
-    int row = sub / cols;
-    int col = sub%rows;
+subscript ind2sub(const size_t &sub, const size_t &cols,
+    const size_t &rows) {
+    size_t row = sub / cols;
+    size_t col = sub%rows;
     return std::make_pair(row, col);
 }
 
-std::vector<std::pair<size_t, size_t> > get_n_unique_square_subscripts(size_t n) {
+std::vector<subscript> get_n_unique_square_subscripts(size_t n) {
     size_t square = get_nearest_square(n);
     std::vector<size_t> inds(square);
     for (size_t i = 0; i < inds.size(); i++) {
@@ -35,7 +36,8 @@ std::vector<std::pair<size_t, size_t> > get_n_unique_square_subscripts(size_t n)
 
     size_t n_surplus = square - n;
     for (size_t i = 0; i < n_surplus; i++) {
-        inds.erase(inds.begin() + std::rand() % inds.size());
+        int randn = std::rand() % static_cast<int>(inds.size());
+        inds.erase(inds.begin()+randn);
     }
 
     size_t base = static_cast<size_t>(sqrt(square));
@@ -49,7 +51,8 @@ std::vector<std::pair<size_t, size_t> > get_n_unique_square_subscripts(size_t n)
 std::vector<XY> get_n_unique_square_points(double x_min, double x_max,
     double y_min, double y_max, size_t n) {
 
-    std::vector<std::pair<size_t, size_t> > subs = get_n_unique_square_subscripts(n);
+    std::vector<std::pair<size_t, size_t> >
+        subs = get_n_unique_square_subscripts(n);
 
     std::vector<XY> pts;
     for (size_t i = 0; i < subs.size(); i++) {
@@ -69,7 +72,7 @@ double manhattan_distance(const XY &p1, const XY &p2) {
 }
 
 
-int cardinal_direction(const XY &dx_dy) {
+size_t cardinal_direction(const XY &dx_dy) {
     if (dx_dy.y >= 0) {  // Going up
         if (dx_dy.x >= 0) return 0;  // up-right
         else
@@ -87,7 +90,7 @@ double euclidean_distance(const XY &p1, const XY &p2) {
     return sqrt(dx*dx + dy*dy);
 }
 
-int bin(const double &n, const matrix1d& bounds) {
+size_t bin(const double &n, const matrix1d& bounds) {
     for (size_t i = 0; i < bounds.size() - 1; i++)
         if (n < bounds[i + 1])
             return i;

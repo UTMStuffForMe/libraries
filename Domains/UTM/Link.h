@@ -9,7 +9,7 @@
 
 class Link {
  public:
-     Link(int ID, int source_set, int target_set,
+     Link(size_t ID, int source_set, int target_set,
          int time, std::vector<size_t> capacity, int cardinal_dir);
 
     //!
@@ -45,7 +45,7 @@ class Link {
 
 
  private:
-    const int ID;
+    const size_t ID;
     const int time;  // Amount of time it takes to travel across link
 
     std::vector<size_t> capacity;  // Capacity for each UAV type [#types]

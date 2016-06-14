@@ -21,7 +21,7 @@ UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
     lowGraph = new MultiGraph<GridGraph>(highGraph->at()->get_n_edges(), base);
 
     vector<edge> edges = highGraph->at()->get_edges();
-    vector<vector<int> > connections(params_set->n_sectors);
+    vector<vector<size_t> > connections(params_set->n_sectors);
     for (edge e : edges)
         connections[e.first].push_back(e.second);
     

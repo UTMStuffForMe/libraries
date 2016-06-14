@@ -11,40 +11,39 @@ class XY : public std::pair<double, double> {
         pair<double, double>(x, y), x(x), y(y) {}
 
     XY() {};
-    ~XY() {};
 
     double x, y;
 
     //! Vector subtraction
-    XY friend operator-(const XY &lhs, const XY &rhs) {
-        return XY(lhs.x - rhs.x, lhs.y - rhs.y);
+    XY operator-(const XY &rhs) const {
+        return XY(x - rhs.x, y - rhs.y);
     }
 
     //! Orders first by x values, then by y values
-    friend bool operator<(const XY &lhs, const XY &rhs) {
-        if (lhs.x != rhs.x) return lhs.x < rhs.x;
-        return lhs.y < rhs.y;
+    bool operator<(const XY &rhs) const {
+        if (x != rhs.x) return x < rhs.x;
+        return y < rhs.y;
     }
 
     //! Checks equality of both elements
-    friend bool operator==(const XY &lhs, const XY &rhs) {
-        return lhs.x == rhs.x && lhs.y == rhs.y
-            && lhs.first == rhs.first && lhs.second == rhs.second;
+    bool operator==(const XY &rhs) const {
+        return x == rhs.x && y == rhs.y &&
+            first == rhs.first && second == rhs.second;
     }
 
     //! Scalar multiplication
-    friend XY operator*(const XY &lhs, double rhs) {
-        return XY(lhs.x*rhs, lhs.y*rhs);
+    XY operator*(double rhs) const {
+        return XY(x*rhs, y*rhs);
     }
 
     //! Dot multiplication
-    friend double operator*(const XY &U, const XY &V) {
-        return U.x*V.x + U.y*V.y;
+    double operator*(const XY &V) const {
+        return x*V.x + y*V.y;
     }
 
     //! Vector addition
-    friend XY operator+(const XY &lhs, const XY &rhs) {
-        return XY(lhs.x + rhs.x, lhs.y + rhs.y);
+    XY operator+(const XY &rhs) const {
+        return XY(x + rhs.x, y + rhs.y);
     }
 
     //! Assignment operator

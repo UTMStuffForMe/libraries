@@ -84,7 +84,7 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set, bool):
 UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set): UTMDomainAbstract(params_set, true) {
     // Sector/Fix  construction
     vector<edge> edges = highGraph->at()->get_edges();
-    vector<vector<int> > connections(params_set->n_sectors);
+    vector<vector<size_t> > connections(params_set->n_sectors);
     for (edge e : edges)
         connections[e.first].push_back(e.second);
 
@@ -494,6 +494,7 @@ void UTMDomainAbstract::getPathPlans(const std::list<UAV* > &new_UAVs) {
 }
 
 void UTMDomainAbstract::reset() {
+    sectors.front()->generation_pt->reset();
     while (!UAVs.empty()) {
         delete UAVs.back();
         UAVs.pop_back();

@@ -4,8 +4,8 @@
 
 class SectorDetail : public Sector {
 public:
-    SectorDetail(easymath::XY xy, int sectorIDset,
-        std::vector<int> connections, std::vector<easymath::XY> dest_locs,
+    SectorDetail(easymath::XY xy, size_t sectorIDset,
+        std::vector<size_t> connections, std::vector<easymath::XY> dest_locs,
         MultiGraph<LinkGraph>* highGraph, MultiGraph<GridGraph>* lowGraph,
         UTMModes* params, std::list<UAVDetail*>* UAVs_done) :
         Sector(xy, sectorIDset, connections, dest_locs) {

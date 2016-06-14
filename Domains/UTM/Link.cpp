@@ -6,7 +6,7 @@
 #include <list>
 #include <vector>
 
-Link::Link(int ID, int source_set, int target_set,
+Link::Link(size_t ID, int source_set, int target_set,
     int time, std::vector<size_t> capacity, int cardinal_dir) :
     ID(ID),
     source(source_set),

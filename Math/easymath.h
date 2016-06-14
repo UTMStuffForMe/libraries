@@ -10,11 +10,11 @@
 #include "XY.h"
 
 namespace easymath {
-
-typedef std::vector<XY> path;
+typedef std::pair<size_t, size_t> subscript;
+typedef std::pair<XY, XY> line_segment;
 
 //! Returns bin assignment based on bounds. Bounds must be sorted
-int bin(const double& n, const matrix1d& bounds);
+size_t bin(const double& n, const matrix1d& bounds);
 
 //! Calculates the manhattan distance between two points
 double manhattan_distance(const XY &p1, const XY &p2);
@@ -23,14 +23,11 @@ double manhattan_distance(const XY &p1, const XY &p2);
 double euclidean_distance(const XY &p1, const XY &p2);
 
 //! Calculates the cardinal direction of a vector
-int cardinal_direction(const XY &dx_dy);
+size_t cardinal_direction(const XY &dx_dy);
 
 //! Cross product between vectors.
 //! This assumes U and V are endpoints of vectors that originate at (0,0)
 double cross(const XY &U, const XY &V);
-
-//! Overloaded type definition to allow for additional calculations
-typedef std::pair<XY, XY> line_segment;
 
 //! Checks whether lines intersect in the center.
 //! Coinciding endpoints excluded). Returns true if so.
@@ -52,9 +49,9 @@ std::vector<XY> get_n_unique_square_points(double xmin, double xmax,
     double ymin, double ymax, size_t n);
 
 //! Gets unique indices for a square that must contain n points
-std::vector<std::pair<size_t, size_t> > get_n_unique_square_subscripts(size_t n);
+std::vector<subscript> get_n_unique_square_subscripts(size_t n);
 
-std::pair<int, int> ind2sub(const int sub, const int cols, const int rows);
+subscript ind2sub(const size_t &sub, const size_t &cols, const size_t &rows);
 
 size_t nChoosek(size_t n, size_t k);
 

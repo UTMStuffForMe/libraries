@@ -5,7 +5,7 @@
 
 class FixDetail : public Fix {
 public:
-    FixDetail(easymath::XY loc, int ID, MultiGraph<LinkGraph>* highGraph,
+    FixDetail(easymath::XY loc, size_t ID, MultiGraph<LinkGraph>* highGraph,
         MultiGraph<GridGraph>* lowGraph, std::vector<easymath::XY> dest_locs, UTMModes* params) :
         Fix(loc, ID, highGraph, dest_locs, params),
         lowGraph(lowGraph), approach_threshold(params->get_dist_thresh()),
