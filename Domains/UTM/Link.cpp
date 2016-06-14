@@ -27,7 +27,7 @@ int Link::number_over_capacity(size_t type_ID) {
 
 matrix1d Link::predicted_traversal_time() {
     // Get predicted wait time for each type of UAV
-    matrix1d predicted(traffic.size());
+    matrix1d predicted(traffic.size(),0.0);
     for (size_t i = 0; i < traffic.size(); i++) {
         // Collect wait times on all UAVs ON the link
         matrix1d waits;
@@ -46,6 +46,9 @@ matrix1d Link::predicted_traversal_time() {
         // Store predicted link time.
         double w = easymath::sum(waits);
         predicted[i] = time + w;
+        if (w < 0) {
+            printf("bad");
+        }
     }
     return predicted;
 }
@@ -62,6 +65,9 @@ void Link::move_from(UAV* u, Link* l) {
 }
 
 void Link::add(UAV* u){
+    if (time < 0) {
+        printf("bad");
+    }
     u->set_wait(time);
     traffic.at(u->get_type()).push_back(u);
     u->set_cur_link_ID(ID);
@@ -70,7 +76,7 @@ void Link::add(UAV* u){
 
 
 void Link::remove(UAV* u) {
-    easystl::remove_element(traffic[u->get_type()], u);
+    easystl::remove_element(&traffic[u->get_type()], u);
 }
 
 void Link::reset() {

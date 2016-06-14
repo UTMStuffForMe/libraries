@@ -119,8 +119,8 @@ double normalize(double val, double min, double max);
 
 void zero(matrix2d * m);
 void zero(matrix1d * m);
-matrix1d zeros(int dim1);
-matrix2d zeros(int dim1, int dim2);
-matrix3d zeros(int dim1, int dim2, int dim3);
+matrix1d zeros(size_t dim1);
+matrix2d zeros(size_t dim1, size_t dim2);
+matrix3d zeros(size_t dim1, size_t dim2, size_t dim3);
 }  // namespace easymath
 #endif  // MATH_MATRIXTYPES_H_

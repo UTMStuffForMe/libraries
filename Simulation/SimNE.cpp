@@ -1,6 +1,8 @@
 // Copyright 2016 Carrie Rebhuhn
 #include "SimNE.h"
 
+using std::vector;
+
 SimNE::SimNE(IDomainStateful* domain, MultiagentNE* MAS) :
     ISimulator(domain, MAS), step(new size_t(0)), MAS(MAS) {
     domain->synch_step(step);
@@ -74,7 +76,7 @@ void SimNE::run_simulation(bool log, matrix3d& recorded, int suppressed) {
     for ((*step) = 0; (*step) < domain->n_steps; (*step)++) {
         matrix2d A;
         if (recording_on) {
-            A = this->getActions();
+            A = this->get_actions();
             recorded.push_back(A);
         } else {
             A = recorded[*step];
@@ -91,10 +93,10 @@ void SimNE::run_simulation(bool log, matrix3d& recorded, int suppressed) {
 
 void SimNE::run_simulation(bool log, int suppressed_agent) {
     for ((*step) = 0; (*step) < domain->n_steps; (*step)++) {
-        matrix2d A = this->getActions();
+        matrix2d A = this->get_actions();
 
         if (suppressed_agent >= 0) {
-            A[suppressed_agent] = easymath::zeros(A[suppressed_agent].size());
+            A[suppressed_agent] = matrix1d(A[suppressed_agent].size(), 1000);
         }
         domain->simulateStep(A);
         
@@ -106,7 +108,7 @@ void SimNE::run_simulation(bool log, int suppressed_agent) {
 void SimNE::epoch_difference(int ep) {
     printf("Epoch %i", ep);
     SimNE::accounting accounts = SimNE::accounting();
-    MAS->generateNewMembers();
+    MAS->generate_new_members();
     do {
         run_simulation(false);
 
@@ -125,9 +127,9 @@ void SimNE::epoch_difference(int ep) {
             printf("D_%i=%f,", i, D[i]);
         domain->reset();
         }
-        MAS->updatePolicyValues(D);
-    } while (MAS->setNextPopMembers());
-    MAS->selectSurvivors();
+        MAS->update_policy_values(D);
+    } while (MAS->set_next_pop_members());
+    MAS->select_survivors();
 
     reward_log.push_back(accounts.best_run);
     metric_log.push_back(accounts.best_run_performance);
@@ -138,7 +140,7 @@ void SimNE::epoch_difference_replay(int ep) {
     printf("Epoch %i", ep);
     SimNE::accounting accounts = SimNE::accounting();
     
-    MAS->generateNewMembers();
+    MAS->generate_new_members();
     do {
         matrix3d recorded_actions;
         printf("Wait for it...");
@@ -161,9 +163,9 @@ void SimNE::epoch_difference_replay(int ep) {
             printf("D_%i=%f,", i, D[i]);
             domain->reset();
         }
-        MAS->updatePolicyValues(D);
-    } while (MAS->setNextPopMembers());
-    MAS->selectSurvivors();
+        MAS->update_policy_values(D);
+    } while (MAS->set_next_pop_members());
+    MAS->select_survivors();
 
     reward_log.push_back(accounts.best_run);
     metric_log.push_back(accounts.best_run_performance);
@@ -172,22 +174,21 @@ void SimNE::epoch_difference_replay(int ep) {
 void SimNE::epoch(int ep) {
     bool log = (ep == 0 || ep == n_epochs - 1) ? true : false;
 
-    MAS->generateNewMembers();
+    MAS->generate_new_members();
     SimNE::accounting accounts = SimNE::accounting();
 
-    int n = 0; // neural net number
     do {
         // Gets the g
-        run_simulation(log, n++);
+        run_simulation(log);
         matrix1d R = domain->getRewards();
         matrix1d perf = domain->getPerformance();
 
         accounts.update(R, perf);
 
         domain->reset();
-        MAS->updatePolicyValues(R);
-    } while (MAS->setNextPopMembers());
-    MAS->selectSurvivors();
+        MAS->update_policy_values(R);
+    } while (MAS->set_next_pop_members());
+    MAS->select_survivors();
 
 
     reward_log.push_back(accounts.best_run);
@@ -198,7 +199,7 @@ void SimNE::epoch(int ep) {
         domain->exportStepsOfTeam(accounts.best_perf_idx, "trained");
 }
 
-matrix2d SimNE::getActions() {
-    matrix2d S = domain->getStates();
-    return MAS->getActions(S);
+vector<State> SimNE::get_actions() {
+    vector<State> S = domain->get_states();
+    return MAS->get_actions(S);
 }

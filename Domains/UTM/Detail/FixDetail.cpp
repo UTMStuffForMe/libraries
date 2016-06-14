@@ -19,14 +19,14 @@ UAVDetail* FixDetail::generate_UAV(int step) {
 }
 
 UAVDetail* FixDetail::generate_UAV() {
-    static int calls = 0;
+    static size_t calls = 0;
     XY end_loc;
     if (ID == 0)
         end_loc = destination_locs.back();
     else
         end_loc = destination_locs.at(ID - 1);  // go to previous
 
-    int type_id_set = calls%params->get_n_types();
+    size_t type_id_set = calls%params->get_n_types();
     LinkGraph* high = highGraph->at(type_id_set);
     GridGraph* low = lowGraph->at(type_id_set);
 

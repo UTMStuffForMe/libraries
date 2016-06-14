@@ -76,7 +76,7 @@ class GridGraph : public GridBase {
     double get_x(vertex_descriptor v) { return static_cast<double>(v[0]); }
     double get_y(vertex_descriptor v) { return static_cast<double>(v[1]); }
 
-    typedef std::pair<int, int> edge;
+    typedef std::pair<size_t,size_t> edge;
     typedef std::vector<std::vector<bool> > barrier_grid;
 
 
@@ -104,7 +104,7 @@ class GridGraph : public GridBase {
     GridGraph(): GridGraph(easymath::zeros(1,1)) {}
 
     explicit GridGraph(const matrix2d &members);
-    ~GridGraph() {}
+    virtual ~GridGraph() {}
 
     //! Adds barriers if a cell does not match membership m1 or m2
     void occlude_nonmembers(int m1, int m2);

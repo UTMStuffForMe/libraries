@@ -13,13 +13,13 @@
 
 class Fix {
  public:
-    typedef std::pair<int, int> edge;
+    typedef std::pair<size_t,size_t> edge;
     Fix(easymath::XY loc, int ID, MultiGraph<LinkGraph>* highGraph,
         std::vector<easymath::XY> dest_locs,
         UTMModes* params);
 
 
-    ~Fix() {}
+    virtual ~Fix() {}
     UTMModes* params;
     int ID;
     easymath::XY loc;

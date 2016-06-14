@@ -27,9 +27,8 @@ GridGraph::GridGraph(barrier_grid obstacle_map) : GridBase(),
     }
 }
 
-GridGraph::GridGraph(const matrix2d &members) : GridBase(),
-    m_grid(create_grid(members.size(), members[0].size())),
-    g(create_barrier_grid()), members(members) {
+GridGraph::GridGraph(const matrix2d &members_set) : GridGraph(members_set<0){
+    members = members_set;
 }
 
 void GridGraph::occlude_nonmembers(int m1, int m2) {

@@ -1,7 +1,7 @@
 // Copyright 2016 Carrie Rebhuhn
 #include "TypeNeuroEvo.h"
 
-// This is multimind
+
 TypeNeuroEvo::TypeNeuroEvo(NeuroEvoParameters* NEParams, size_t nTypes) :
     NETypes(std::vector<NeuroEvo*>(nTypes)),
     xi(matrix1d(nTypes, 0.0)) {

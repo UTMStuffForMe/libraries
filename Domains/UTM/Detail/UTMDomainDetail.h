@@ -30,7 +30,7 @@ class UTMDomainDetail : public UTMDomainAbstract {
     virtual matrix1d getRewards();
     virtual matrix1d getPerformance();
     virtual void getPathPlans();  // note: when is this event?
-    virtual void getPathPlans(const std::list<UAVDetail*> &new_UAVs);
+    void getPathPlans(const std::list<UAVDetail*> &new_UAVs);
     virtual void exportLog(std::string fid, double G);
     virtual void detectConflicts();
     virtual void incrementUAVPath();

@@ -21,11 +21,12 @@
 #include "FileIO/FileIn.h"
 #include "SectorAgentManager.h"
 
+#define UTM_ABSTRACT_VERBOSE
 
 class UTMDomainAbstract :
     public IDomainStateful {
- public:
-    typedef std::pair<int, int> edge;
+public:
+    typedef std::pair<size_t, size_t> edge;
     explicit UTMDomainAbstract(UTMModes* params);
     explicit UTMDomainAbstract(UTMModes* params, bool only_abstract);
     ~UTMDomainAbstract(void);
@@ -49,7 +50,7 @@ class UTMDomainAbstract :
     std::vector<Sector*> sectors;
     std::vector<Link*> links;
     std::vector<Fix*> fixes;
-    std::map<edge, int> *linkIDs;
+    std::map<edge, size_t> *linkIDs;
 
 
     // Traffic
@@ -63,7 +64,7 @@ class UTMDomainAbstract :
     RAGS* rags_map;
 
     // Base function overloads
-    matrix2d getStates();
+    matrix2d get_states();
     matrix3d getTypeStates();
     void simulateStep(matrix2d agent_actions);
     void logStep();
@@ -99,13 +100,13 @@ protected:
 
 public:
     //~B
-    	// The UAVs that have reached their goals (mapping: sector -> UAVs that are "standing by")
-        std::map<int, std::list<UAV*> > UAVs_done;
-        std::map<int, std::list<int> > incoming_links;
+        // The UAVs that have reached their goals (mapping: sector -> UAVs that are "standing by")
+    std::map<int, std::list<UAV*> > UAVs_done;
+    std::map<int, std::list<int> > incoming_links;
 
 
-        size_t next_link(UAV* u) {
-            return linkIDs->at(edge(u->get_cur_sector(), u->get_next_sector()));
-        }
+    size_t next_link(UAV* u) {
+        return linkIDs->at(edge(u->get_cur_sector(), u->get_next_sector()));
+    }
 };
 #endif  // DOMAINS_UTM_UTMDOMAINABSTRACT_H_

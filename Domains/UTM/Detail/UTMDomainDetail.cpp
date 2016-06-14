@@ -26,7 +26,7 @@ UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
         connections[e.first].push_back(e.second);
     
     vector<XY> sector_locs = highGraph->at()->get_locations();
-    for (int i = 0; i < params->n_sectors; i++)
+    for (size_t i = 0; i < params->n_sectors; i++)
         sectors.push_back(new SectorDetail(sector_locs[i], i, connections[i],
             sector_locs, highGraph, lowGraph, params, &UAVs_done[i]));
 }
@@ -36,7 +36,7 @@ void UTMDomainDetail::logUAVLocations() {
     //~B
     matrix1d stepLocation;
     list<UAVDetail*> all_UAVs = UAVs;
-    for (int s = 0; s < params->n_sectors; s++) {
+    for (size_t s = 0; s < params->n_sectors; s++) {
         for (UAVDetail *ud : UAVs_done[s]) {
             // the UAV
             std::list<UAVDetail*>::iterator successor = std::find_if(all_UAVs.begin(), all_UAVs.end(), [ud](UAV* u) {
@@ -62,7 +62,7 @@ void UTMDomainDetail::logUAVLocations() {
 }
 
 
-void UTMDomainDetail::exportUAVLocations(int fileID) {
+void UTMDomainDetail::exportUAVLocations(int) {
     // ~B
     //FileOut::print_vector(UAVLocations,
         //"Locations" + std::to_string(fileID) + ".csv");
@@ -190,7 +190,7 @@ void UTMDomainDetail::reset() {
         delete u;
     UAVs.clear();
 
-    for (int s = 0; s < params->n_sectors; s++) {
+    for (size_t s = 0; s < params->n_sectors; s++) {
         for (UAV* ud : UAVs_done[s])
             delete ud;
         UAVs_done[s].clear();
@@ -208,7 +208,7 @@ void UTMDomainDetail::try_to_move(vector<UAVDetail*> * eligible_to_move) {
         el_size = eligible_to_move->size();
 
         vector<Link*> L = links;
-        map<edge, int>* ids = linkIDs;
+        map<edge, size_t>* ids = linkIDs;
         eligible_to_move->erase(
             remove_if(eligible_to_move->begin(), eligible_to_move->end(),
                 [L, ids](UAVDetail* u) {
@@ -258,7 +258,7 @@ void UTMDomainDetail::absorbUAVTraffic() {
     bool keep = params->_disposal_mode == UTMModes::DisposalMode::KEEP ? true : false;
     if (keep) { // remove UAVs from the domain, but keep track of where they were for later
               // THIS IS ASSUMING 1 FIX PER SECTOR
-        for (int s = 0; s < params->n_sectors; s++)
+        for (size_t s = 0; s < params->n_sectors; s++)
         {
             // points to next UAV that has reached it's goal
             std::list<UAVDetail*>::iterator done = UAVs.begin();
@@ -269,9 +269,6 @@ void UTMDomainDetail::absorbUAVTraffic() {
                         FixDetail* fix = S[u->get_cur_sector()]->generation_pt; // note: may want to move this to internal to fixes, for now making generation pt public
                         if (fix->atDestinationFix(*u)) {
                             l[u->get_cur_link()]->remove(u);
-//                            u->committed_to_link = false; // uncommit it since it's done anyway
-//                            u->pathChanged = false; // Why not...
-                            u->times_reached_goal++;
                             return true;
 
                         } else {

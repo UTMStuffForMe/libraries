@@ -2,9 +2,11 @@
 
 #include "SimTypeNE.h"
 
-matrix2d SimTypeNE::getActions() {
-    matrix3d S = domain->getTypeStates();  // [agent id][type id][state element
-    return MAS->getActions(S);
+using std::vector;
+
+vector<Action> SimTypeNE::get_actions() {
+    vector<vector<State> > S = domain->getTypeStates();  // [agent id][type id][state element
+    return MAS->get_actions(S);
 }
 
 SimTypeNE::SimTypeNE(IDomainStateful *domain,

@@ -31,7 +31,7 @@ class NeuroEvoTypeWeighted : public NeuroEvo {
         pop_member_active = population.begin();
     }
 
-    virtual void generateNewMembers() {
+    virtual void generate_new_members() {
         // Mutate existing members to generate more
         std::list<NeuralNet*>::iterator popMember = population.begin();
         // add k new members
@@ -50,9 +50,9 @@ class NeuroEvoTypeWeighted : public NeuroEvo {
 
     size_t n_types, n_state_elements;
 
-    using NeuroEvo::getAction;  // so that the overloaded base class is seen
+    using NeuroEvo::get_action;  // so that the overloaded base class is seen
 
-    matrix1d getAction(matrix2d state) {
+    matrix1d get_action(matrix2d state) {
         // state has elements [type][state element]
         matrix1d preprocessed_state(n_state_elements, 0.0);
         for (size_t s = 0; s < n_state_elements; s++) {
@@ -62,7 +62,7 @@ class NeuroEvoTypeWeighted : public NeuroEvo {
                         (*pop_member_active))->preprocess_weights[t][s][0];
             }
         }
-        return getAction(preprocessed_state);
+        return get_action(preprocessed_state);
     }
 
     ~NeuroEvoTypeWeighted() {}

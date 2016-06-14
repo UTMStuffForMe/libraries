@@ -10,11 +10,11 @@
 
 class Sector {
  public:
-    typedef std::pair<int, int> edge;
+    typedef std::pair<size_t,size_t> edge;
     // An area of airspace to control
     Sector(easymath::XY xy, int sectorIDset, std::vector<int> connections,
-        std::vector<easymath::XY> dest_locs, MultiGraph<LinkGraph>* highGraph,
-        UTMModes* params);
+        std::vector<easymath::XY> dest_locs):
+        xy(xy), ID(sectorIDset), connections(connections){}
     ~Sector() {}
 
     // Location properties

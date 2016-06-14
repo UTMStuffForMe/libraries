@@ -34,7 +34,7 @@ class SimNE : public ISimulator {
     void run_simulation(bool log, matrix3d& actions_recorded, int suppressed_agent = -1);
 
     //! Gets actions based on current state: OVERLOAD FOR TYPES
-    virtual matrix2d getActions();
+    virtual std::vector<Action> get_actions();
     void runExperimentDifference();
     void runExperimentDifferenceReplay();
     struct accounting {

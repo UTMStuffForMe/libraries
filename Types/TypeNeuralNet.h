@@ -5,12 +5,11 @@
 
 #include "NeuralNet.h"
 
-class TypeNeuralNet : public NeuralNet {
+class TypeNeuralNet: public IPolicy<matrix2d,matrix2d,double> { // used to be child of NeuralNet
  public:
-    TypeNeuralNet(int input, int hidden, int output,
-        matrix3d preprocess_weights) :
-        NeuralNet(input, hidden, output),
-        preprocess_weights(preprocess_weights) {
+    TypeNeuralNet(int input, int hidden, int output, matrix3d preprocess_weights) //:
+       // NeuralNet(input, hidden, output),
+    {//preprocess_weights(preprocess_weights) {
         for (matrix2d &l1 : preprocess_weights) {
             for (matrix1d &l2 : l1) {
                 for (double &l3 : l2) {
@@ -40,5 +39,25 @@ class TypeNeuralNet : public NeuralNet {
     }
 
     ~TypeNeuralNet(void) {}
+};
+
+class NNBlind: public TypeNeuralNet {
+
+};
+
+class NNCrossWeighted: TypeNeuralNet {
+
+};
+
+class NNWeighted: TypeNeuralNet {
+
+};
+
+class Multipolicy: IPolicy<matrix2d,matrix2d,double> {
+
+};
+
+class NNMultimind: IAgent<Multipolicy> {
+
 };
 #endif  // SINGLEAGENT_NEURALNET_TYPENEURALNET_H_

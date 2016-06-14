@@ -12,7 +12,7 @@ public:
         conflict_threshold(params->get_conflict_thresh())
     {};
 
-    ~FixDetail() {}
+    virtual ~FixDetail() {}
     MultiGraph<GridGraph>* lowGraph;
 
     //! Calls a conditional, then creates UAV in the world

@@ -14,6 +14,7 @@ class UAVDetail : public UAV {
 public:
     UAVDetail(easymath::XY start_loc, easymath::XY end_loc, UTMModes::UAVType t,
         LinkGraph* highGraph, UTMModes* params, GridGraph* lowGraph);
+    virtual ~UAVDetail() {};
 
     // Comparison accessors
     bool has_plan() const { return !target_waypoints.empty(); }
@@ -21,13 +22,13 @@ public:
     bool is_goal(easymath::XY l) const { return end_loc == l; }
     bool at_boundary();
     bool has_detail_plan() { return !target_waypoints.empty(); };
-    bool on_internal_link(int next_link_ID) { return cur_link_ID < params->n_links && next_link_ID >= params->n_links; }
+    bool on_internal_link(size_t next_link_ID) { return cur_link_ID < params->n_links && next_link_ID >= params->n_links; }
     double distance_to(easymath::XY l) const { return easymath::euclidean_distance(loc, l); }
 
     // Regular accessors
     easymath::XY get_location() { return loc; }
     //! Gets the sector ID from the current location
-    virtual int UAVDetail::get_cur_sector() const { return lowGraph->get_membership(loc); }
+    virtual size_t get_cur_sector() const { return lowGraph->get_membership(loc); }
 
     // Mutators
     virtual void planAbstractPath();
@@ -42,9 +43,8 @@ private:
     //! Low-level graph
     GridGraph* lowGraph;
 
-
+    /*
     virtual void clearHistory();
-    
     std::vector<easymath::XY> prev_locs;
     std::vector<size_t> prev_secs;
     std::vector<bool> prev_commits;
@@ -52,7 +52,7 @@ private:
     std::vector<size_t> prev_cur_links;
     std::vector<size_t> prev_next_links;
     std::vector<std::list<easymath::XY> >prev_targ;
-
+    */
 };
 
 #endif  // DOMAINS_UTM_UAVDETAIL_H_

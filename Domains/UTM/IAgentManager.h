@@ -26,7 +26,7 @@ class IAgentManager {
     double alpha;
     //! Constructor that sets up agent management based on UTMModes.
     explicit IAgentManager(UTMModes* params);
-    ~IAgentManager() {}
+    virtual ~IAgentManager() {}
 
     //! Identifies whether squared reward is used (D = G^2-G_c^2)
     bool square_reward;
@@ -83,7 +83,7 @@ class IAgentManager {
         * so that data for this calculation is not scattered all over the
         * simulator.
         */
-        explicit Reward_Metrics(int n_types) :
+        explicit Reward_Metrics(size_t n_types) :
             local(easymath::zeros(n_types)),
             G_avg(easymath::zeros(n_types)),
             G_minus_downstream(easymath::zeros(n_types)),

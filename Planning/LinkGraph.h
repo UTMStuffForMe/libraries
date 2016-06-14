@@ -32,7 +32,7 @@ class LinkGraph : public LinkBase {
  public:
 
      // More convenient types
-     typedef std::pair<int, int> edge;
+     typedef std::pair<size_t, size_t> edge;
 
      
     //! For compliance with base type
@@ -50,7 +50,7 @@ class LinkGraph : public LinkBase {
 
     matrix1d saved_weights;  // for blocking and unblocking sectors
     std::vector<easymath::XY> locations;
-    std::map<easymath::XY, int> loc2mem;  // maps location to membership
+    std::map<easymath::XY, size_t> loc2mem;  // maps location to membership
 
     void blockVertex(int vertexID);
     void unblockVertex();
@@ -66,20 +66,20 @@ class LinkGraph : public LinkBase {
     LinkGraph(std::vector<easymath::XY> locations_set,
         const std::vector<edge> &edge_array);
     LinkGraph(size_t n_vertices, size_t xdim, size_t ydim);
-    ~LinkGraph(void) {}
+    virtual ~LinkGraph(void) {}
     LinkGraph();
 
     //! Accessor functions
-    const size_t get_n_vertices() { return locations.size(); }
+    size_t get_n_vertices() const { return locations.size(); }
     size_t get_n_edges() const { return num_edges(g); }
-    const easymath::XY get_vertex_loc(size_t vID) { return locations.at(vID); }
-    const int get_membership(easymath::XY pt) { return loc2mem.at(pt); }
-    const matrix1d get_weights();
+    easymath::XY get_vertex_loc(size_t vID) const { return locations.at(vID); }
+    size_t get_membership(easymath::XY pt) const { return loc2mem.at(pt); }
+    matrix1d get_weights() const;
     std::vector<edge> get_edges() const;
     std::vector<easymath::XY> get_locations() const { return locations; }
     void set_weights(matrix1d weights);
 
-    const int get_direction(int m1, int m2);
+    int get_direction(size_t m1, size_t m2) const;
 
     //! Printout
     void print_graph(std::string file_path);

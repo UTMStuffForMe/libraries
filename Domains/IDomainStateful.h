@@ -15,24 +15,24 @@ typedef std::vector<std::vector<std::vector<double> > > matrix3d;
 
 class IDomainStatefulParameters {
  public:
-    virtual int get_n_state_elements() = 0; // agent, RENAME: STATE_DIMENSION()
-    virtual int get_n_control_elements() = 0; // agent, RENAME: ACTION_DIMENSION()
-    virtual int get_n_steps() = 0;  // simulation
-    virtual int get_n_types() = 0;  // domain
+    virtual size_t get_n_state_elements() = 0; // agent, RENAME: STATE_DIMENSION()
+    virtual size_t get_n_control_elements() = 0; // agent, RENAME: ACTION_DIMENSION()
+    virtual size_t get_n_steps() = 0;  // simulation
+    virtual size_t get_n_types() = 0;  // domain
 
  private:
-    int n_types;
-    int state_dimension;
-    int action_dimension;
+    size_t n_types;
+    size_t state_dimension;
+    size_t action_dimension;
 };
 
 class IDomainStateful {
  public:
     explicit IDomainStateful(IDomainStatefulParameters *params);
-    ~IDomainStateful(void);    
+    virtual ~IDomainStateful(void);    
 
     // Returns the state vector for the set of agents, [AGENTID][STATEELEMENT]
-    virtual matrix2d getStates() = 0;
+    virtual matrix2d get_states() = 0;
 
     //! [AGENTID][TYPEID][STATEELEMENT]
     virtual matrix3d getTypeStates() = 0;

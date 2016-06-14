@@ -9,7 +9,7 @@
 #include <string>
 
 #include "SingleAgent/NeuralNet/NeuralNet.h"
-#include "SingleAgent/IAgent.h"
+#include "SingleAgent/Evolution.h"
 #include "FileIO/FileIn.h"
 #include "FileIO/FileOut.h"
 
@@ -24,60 +24,37 @@ class NeuroEvoParameters {
     double epsilon;  // for epsilon-greedy selection: currently unused
 };
 
-class NeuroEvo : public IAgent {
+
+class NeuroEvo : public Evolution<NeuralNet> {
  public:
+     //! Life cycle
     NeuroEvo() {}
     explicit NeuroEvo(NeuroEvoParameters* neuroEvoParamsSet);
-    ~NeuroEvo(void);
+    ~NeuroEvo(void) { deletePopulation(); }
+    void deep_copy(const NeuroEvo &NE);
+    void deletePopulation();
 
-    // Class variables
+    //! Class variables
     NeuroEvoParameters* params;
     std::list<NeuralNet*> population;
     std::list<NeuralNet*>::iterator pop_member_active;
 
-    void deepCopy(const NeuroEvo &NE);
-    //! deletes all neural network population member pointers
-    void deletePopulation();
-    //! Generate k new members from existing population
-    void generateNewMembers();
-    //! Select the next member to test; if cannot be selected, end epoch
-    bool selectNewMember();
-    //! get the highest evaluation in the group
+    //! Mutators
+    void generate_new_members();
+    bool select_new_member();
+    void select_survivors();
+    void update_policy_values(double R);
+    void load(std::string filein);
+
+    //! Accessors
     double getBestMemberVal();
-    void selectSurvivors();
     static bool NNCompare(const NeuralNet *x, const NeuralNet *y) {
-        return (x->evaluation > y->evaluation);
+        return (x->get_evaluation() > y->get_evaluation());
     }
-
-    void updatePolicyValues(double R);
-
-    matrix1d getAction(matrix1d state);
-    matrix1d getAction(matrix2d state);
-
-
-    void save(std::string fileout) {
-        matrix2d nets;
-        for (NeuralNet* p : population) {
-            matrix1d node_info;
-            matrix1d wt_info;
-            p->save(&node_info, &wt_info);
-            nets.push_back(node_info);
-            nets.push_back(wt_info);
-        }
-
-        FileOut::print_vector(nets, fileout);
-    }
-
-    void load(std::string filein) {
-        matrix2d netinfo = FileIn::read2<double>(filein);
-
-        int i = 0;
-        for (NeuralNet* p : population) {
-            // assume that population already has the correct size
-            p->load(netinfo[i], netinfo[i + 1]);
-            i += 2;
-        }
-    }
+    Action get_action(State state);
+    Action get_action(std::vector<State> state);
+    void save(std::string fileout);
 };
+
 #endif  // SINGLEAGENT_NEUROEVO_NEUROEVO_H_
 

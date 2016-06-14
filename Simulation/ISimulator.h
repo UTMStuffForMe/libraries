@@ -2,6 +2,7 @@
 #include "FileIO/FileOut.h"
 #include "Domains/IDomainStateful.h"
 #include "Multiagent/IMultiagentSystem.h"
+#include "SingleAgent/NeuroEvo/NeuroEvo.h"
 
 /*
 Instructions for using ISimulator:
@@ -13,14 +14,13 @@ Instructions for using ISimulator:
 
 class ISimulator{
 public:
-	ISimulator(IDomainStateful* domain, IMultiagentSystem* MAS):
-		domain(domain), MAS(MAS)
-	{
+    typedef IMultiagentSystem<NeuroEvo> MultiagentSystem;
 
-	}
-	~ISimulator(void){};
+	ISimulator(IDomainStateful* domain, MultiagentSystem* MAS):
+		domain(domain), MAS(MAS) {}
+	virtual ~ISimulator(void){};
 	IDomainStateful* domain;
-	IMultiagentSystem* MAS;
+	MultiagentSystem* MAS;
 	virtual void runExperiment(void)=0; // run the experiment
 	void outputRewardLog(std::string reward_file){
 		FileOut::print_vector(reward_log, reward_file);

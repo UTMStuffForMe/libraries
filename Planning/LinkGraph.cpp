@@ -37,7 +37,7 @@ LinkGraph::LinkGraph(size_t n_vertices, size_t xdim, size_t ydim) : g(n_vertices
 vector<LinkGraph::edge> LinkGraph::get_edges() const {
     edge_iter ei, ei_end;
     vector<edge> edges_out(get_n_edges());
-    int index = 0;
+    size_t index = 0;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
         edges_out[index++] = edge((*ei).m_source, (*ei).m_target);
     }
@@ -77,14 +77,14 @@ void LinkGraph::set_weights(matrix1d weights) {
     // iterate over all edge descriptors...
     typedef boost::graph_traits<mygraph_t>::edge_iterator edge_iter;
     edge_iter ei, ei_end;
-    int i = 0;
+    size_t i = 0;
 
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
         put(boost::edge_weight, g, *ei, weights[i++]);
     }
 }
 
-const matrix1d LinkGraph::get_weights() {
+matrix1d LinkGraph::get_weights() const{
     edge_iter ei, ei_end;
     matrix1d weights;
     for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
@@ -145,7 +145,7 @@ bool LinkGraph::intersects_existing_edge(edge candidate) {
     return false;
 }
 
-const int LinkGraph::get_direction(int m1, int m2) {
+int LinkGraph::get_direction(size_t m1, size_t m2) const {
     XY a = get_vertex_loc(m1);
     XY b = get_vertex_loc(m2);
     return cardinal_direction(a - b);

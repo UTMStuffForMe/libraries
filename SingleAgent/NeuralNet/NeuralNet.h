@@ -11,18 +11,39 @@
 #include "Math/easymath.h"
 #include "FileIO/FileIn.h"
 #include "FileIO/FileOut.h"
+#include "SingleAgent/IPolicy.h"
 
-class NeuralNet {
+typedef matrix1d State;
+typedef matrix1d Action;
+typedef double Reward;
+class NeuralNet: public IPolicy<State, Action, Reward> {
  public:
+     typedef Action Action;
+     typedef State State;
+     typedef Reward Reward;
+     // Life cycle
     NeuralNet() : evaluation(0.0), gamma_(0.9) {}
-    ~NeuralNet() {}
-    double evaluation;
+    NeuralNet(int nInput, int nHidden, int nOutput, double gamma = 0.9);
+    explicit NeuralNet(std::vector<int> &, double gamma = 0.9);
+    virtual ~NeuralNet() {}
+
+    // Mutators
+    void update(Reward R) { evaluation = R; }
     void mutate();  // different if child class
+    void load(std::string filein);
+    void load(matrix1d node_info, matrix1d wt_info);
+
+    // Accessors
+    Action operator()(State s) { return predictContinuous(s); }
+    Reward get_evaluation() const { return evaluation; }
+    void save(std::string fileout);
+    void save(matrix1d *node_info, matrix1d *wt_info);
+
+protected:
+    double evaluation;
 
     void addInputs(int nToAdd);
 
-    NeuralNet(int nInput, int nHidden, int nOutput, double gamma = 0.9);
-    explicit NeuralNet(std::vector<int> &, double gamma = 0.9);
     void train(const matrix2d &O, const matrix2d &T, double epsilon = 0.0,
         int iterations = 0);
     matrix1d predictBinary(const matrix1d o);
@@ -30,12 +51,7 @@ class NeuralNet {
     matrix2d batchPredictBinary(const matrix2d &O);
     matrix2d batchPredictContinuous(const matrix2d &O);
 
-    void save(std::string fileout);
-    void load(std::string filein);
-    void load(matrix1d node_info, matrix1d wt_info);
-    void save(matrix1d *node_info, matrix1d *wt_info);
 
- private:
     double gamma_;
     double mutStd;  // mutation standard deviation
     double mutationRate;  // probability that each connection is changed
@@ -65,8 +81,7 @@ class NeuralNet {
 
     //! Static functions
     static double SSE(const matrix1d &myVector);
-    static void matrixMultiply(const matrix1d &A, const matrix2d &B,
-        matrix1d *C);
+    static void matrixMultiply(const matrix1d &A, const matrix2d &B, matrix1d *C);
     static matrix2d matrixMultiply(const matrix2d &A, const matrix2d &B);
     static matrix2d matrixMultiply(const matrix1d&A, const matrix1d &B);
     static matrix1d matrixMultiply(const matrix2d &A, const matrix1d &B);

@@ -2,21 +2,28 @@
 #ifndef SINGLEAGENT_IAGENT_H_
 #define SINGLEAGENT_IAGENT_H_
 
-#include "Math/easymath.h"
+#include "IPolicy.h"
 
+template<class Policy>
 class IAgent {
  public:
-     IAgent(void) {};
+    typedef typename Policy::State State;
+    typedef typename Policy::Action Action;
+    typedef typename Policy::Reward Reward;
+
+    //! Life cycle
+    IAgent(void) {}
     virtual ~IAgent(void) {}
 
-    // Gets an action given a state
-    virtual matrix1d getAction(matrix1d state) = 0;
+    //! Accessors
+    Action get_action(State state) { return (*policy)(state); }
 
-    // Gets an action given a 2d state
-    virtual matrix1d getAction(matrix2d state) = 0;
+    //! Mutators
+    void update_policy_values(Reward R) { policy->update(R); }
+    void set_policy(Policy* p) { policy = p; }
 
-    // Update current policy given a reward
-    virtual void updatePolicyValues(double R) = 0;
+ private:
+    Policy* policy;
 };
 
 #endif  // SINGLEAGENT_IAGENT_H_

@@ -15,6 +15,6 @@ class SimTypeNE : public SimNE {
     MultiagentTypeNE* MAS;
     NeuroEvoParameters* NE_params;
     MultiagentTypeNE::TypeHandling type_mode;
-    virtual matrix2d getActions();
+    virtual std::vector<Action> get_actions();
 };
 #endif  // SIMULATION_SIMTYPENE_H_

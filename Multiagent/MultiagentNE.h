@@ -5,15 +5,14 @@
 #include "IMultiagentSystem.h"
 #include "SingleAgent/NeuroEvo/NeuroEvo.h"
 
-class MultiagentNE :
-    public IMultiagentSystem {
+class MultiagentNE : public IMultiagentSystem<NeuroEvo> {
  public:
-    MultiagentNE(void);
+    MultiagentNE(void) {};
     MultiagentNE(int n_agents, NeuroEvoParameters* NE_params);
     ~MultiagentNE(void);
-    void generateNewMembers();
-    virtual void selectSurvivors();
-    virtual bool setNextPopMembers();
+    void generate_new_members();
+    virtual void select_survivors();
+    virtual bool set_next_pop_members();
 
     NeuroEvoParameters* NE_params;
 };

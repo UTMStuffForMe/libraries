@@ -17,14 +17,14 @@ void easymath::zero(matrix1d * m) {
     *m = matrix1d(m->size(), 0.0);
 }
 
-matrix1d easymath::zeros(int dim1) {
+matrix1d easymath::zeros(size_t dim1) {
     return matrix1d(dim1, 0.0);
 }
 
-matrix2d easymath::zeros(int dim1, int dim2) {
+matrix2d easymath::zeros(size_t dim1, size_t dim2) {
     return matrix2d(dim1, easymath::zeros(dim2));
 }
 
-matrix3d easymath::zeros(int dim1, int dim2, int dim3) {
+matrix3d easymath::zeros(size_t dim1, size_t dim2, size_t dim3) {
     return matrix3d(dim1, easymath::zeros(dim2, dim3));
 }

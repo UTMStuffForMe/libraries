@@ -10,8 +10,7 @@ using std::list;
 UAV::UAV(int start_sector, int end_sector_set, UTMModes::UAVType my_type,
     LinkGraph* highGraph, UTMModes* params) :
     highGraph(highGraph), cur_sector(start_sector), end_sector(end_sector_set),
-    type_ID(size_t(my_type)), speed(1.0), params(params),
-    times_reached_goal(0){
+    type_ID(size_t(my_type)), speed(1.0), params(params) {
     
     static int calls = 0;
     ID = calls++;
@@ -22,9 +21,9 @@ UAV::UAV(int start_sector, int end_sector_set, UTMModes::UAVType my_type,
 
 void UAV::planAbstractPath() {
     sectors_touched.insert(cur_sector);
-
+    auto w = highGraph->get_weights();
     if (params->_search_type_mode == UTMModes::SearchDefinition::ASTAR) {
-        high_path = Planning::astar<LinkGraph,size_t>(highGraph, cur_sector, end_sector);
+        high_path = Planning::astar(highGraph, cur_sector, end_sector);
     } else {
         //high_path = highGraph->at(type_ID)->rags(cur_s, end_s);
     }

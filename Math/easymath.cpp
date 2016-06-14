@@ -16,8 +16,8 @@ std::set<XY> get_n_unique_points(double x_min, double x_max,
     return pt_set;
 }
 
-int get_nearest_square(int n) {
-    return static_cast<int>(pow(ceil(sqrt(n)), 2));
+size_t get_nearest_square(size_t n) {
+    return static_cast<size_t>(pow(ceil(sqrt(n)), 2));
 }
 
 std::pair<int, int> ind2sub(const int sub, const int cols, const int rows) {
@@ -26,20 +26,20 @@ std::pair<int, int> ind2sub(const int sub, const int cols, const int rows) {
     return std::make_pair(row, col);
 }
 
-std::vector<std::pair<int, int> > get_n_unique_square_subscripts(size_t n) {
-    int square = get_nearest_square(n);
-    std::vector<int> inds(square);
+std::vector<std::pair<size_t, size_t> > get_n_unique_square_subscripts(size_t n) {
+    size_t square = get_nearest_square(n);
+    std::vector<size_t> inds(square);
     for (size_t i = 0; i < inds.size(); i++) {
         inds[i] = i;
     }
 
-    int n_surplus = square - n;
-    for (int i = 0; i < n_surplus; i++) {
+    size_t n_surplus = square - n;
+    for (size_t i = 0; i < n_surplus; i++) {
         inds.erase(inds.begin() + std::rand() % inds.size());
     }
 
-    int base = static_cast<int>(sqrt(square));
-    std::vector<std::pair<int, int> > subs(inds.size());
+    size_t base = static_cast<size_t>(sqrt(square));
+    std::vector<std::pair<size_t, size_t> > subs(inds.size());
     for (size_t i = 0; i < subs.size(); i++) {
         subs[i] = ind2sub(inds[i], base, base);
     }
@@ -49,7 +49,7 @@ std::vector<std::pair<int, int> > get_n_unique_square_subscripts(size_t n) {
 std::vector<XY> get_n_unique_square_points(double x_min, double x_max,
     double y_min, double y_max, size_t n) {
 
-    std::vector<std::pair<int, int> > subs = get_n_unique_square_subscripts(n);
+    std::vector<std::pair<size_t, size_t> > subs = get_n_unique_square_subscripts(n);
 
     std::vector<XY> pts;
     for (size_t i = 0; i < subs.size(); i++) {
@@ -162,7 +162,7 @@ size_t nChoosek(size_t n, size_t k) {
     if (k * 2 > n) k = n - k;
     if (k == 0) return 1;
 
-    int result = n;
+    size_t result = n;
     for (size_t i = 2; i <= k; ++i) {
         result *= (n - i + 1);
         result /= i;
@@ -170,8 +170,8 @@ size_t nChoosek(size_t n, size_t k) {
     return result;
 }
 
-std::vector<std::pair<int, int> > all_combos_of_2(size_t n) {
-    std::vector<std::pair<int, int> > v(nChoosek(n, 2));
+std::vector<std::pair<size_t, size_t> > all_combos_of_2(size_t n) {
+    std::vector<std::pair<size_t, size_t> > v(nChoosek(n, 2));
     for (size_t i = 0, index = 0; i < n - 1; i++) {
         for (size_t j = i + 1; j < n; j++) {
             v[index++] = std::make_pair(i, j);

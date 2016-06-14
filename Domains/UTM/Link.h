@@ -18,7 +18,7 @@ class Link {
      int number_over_capacity(size_t type_ID);
     std::vector<std::list<UAV*> > traffic;
     size_t count_traffic() {
-        int count = 0;
+        size_t count = 0;
         for (std::list<UAV*> t : traffic) {
             count += t.size();
         }
@@ -64,7 +64,7 @@ class LinkAgentManager : public IAgentManager {
     // The agent that communicates with others
      LinkAgentManager(int n_edges, int n_types, std::vector<Link*> links,
          UTMModes* params);
-    ~LinkAgentManager() {}
+    virtual ~LinkAgentManager() {}
     // weights are ntypesxnagents
 
     const int n_edges;

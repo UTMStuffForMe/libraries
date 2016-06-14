@@ -8,11 +8,10 @@
 #include "Domains/IDomainStateful.h"
 
 class UTMModes : public IDomainStatefulParameters {
-public:
+ public:
     UTMModes() :
         // Mode defaults
-        //_reward_mode(UTMModes::RewardMode::GLOBAL),
-        _reward_mode(UTMModes::RewardMode::DIFFERENCE_AVG),
+        _reward_mode(UTMModes::RewardMode::GLOBAL),
         _airspace_mode(UTMModes::AirspaceMode::SAVED),
         _traffic_mode(UTMModes::TrafficMode::DETERMINISTIC),
         _agent_defn_mode(UTMModes::AgentDefinition::LINK),
@@ -25,10 +24,10 @@ public:
         alpha(1000.0),
         domain_num(-1)
     {};
-    ~UTMModes() {}
+    virtual ~UTMModes() {}
 
     int domain_num;
-    double alpha; // amount that a neural network impacts the system
+    double alpha;  // amount that a neural network impacts the system
     enum class DisposalMode {KEEP, TRASH};
     DisposalMode _disposal_mode;
 
@@ -41,13 +40,13 @@ public:
 
 
     // NUMBER OF SECTORS
-    int n_sectors;
-    int get_n_sectors() {
+    size_t n_sectors;
+    size_t get_n_sectors() {
         return n_sectors;
     }
 
     // Agents
-    int get_n_agents() {
+    size_t get_n_agents() {
         try {
             if (_agent_defn_mode == UTMModes::AgentDefinition::SECTOR) {
                 return get_n_sectors();
@@ -64,8 +63,8 @@ public:
     }
 
     // This should be set after the graph is constructed!
-    int n_links;
-    int get_n_links() {
+    size_t n_links;
+    size_t get_n_links() {
         return n_links;
     }
 
@@ -122,28 +121,27 @@ public:
     // CONSTANTS
     //! Returns 4 state elements for sectors (number of planes traveling in
     //! cardinal directions). Returns 1 for links.
-    int get_n_state_elements() {
+    size_t get_n_state_elements() {
         if (_agent_defn_mode == UTMModes::AgentDefinition::SECTOR)
             return 4;
         else
             return 1;
     }
-    int get_n_control_elements() {
+    size_t get_n_control_elements() {
         return get_n_state_elements()*get_n_types();
     }
-    int get_n_steps() { return 200; }
-    int get_n_types() { return static_cast<int>(UAVType::NTYPES); }
+    size_t get_n_steps() { return 200; }
+    size_t get_n_types() { return static_cast<size_t>(UAVType::NTYPES); }
     double get_p_gen() { return 0.5; }
 
     //! UAVs are generated every get_gen_rate() steps
-    int get_gen_rate() { return 10; }
+    size_t get_gen_rate() { return 10; }
     double get_dist_thresh() { return 2.0; }
     double get_conflict_thresh() { return 2.0; }
 };
 
 
 class UTMFileNames {
-
     bool numbered_domain;
     std::string domain_num;
     std::string gen_rate;
@@ -154,8 +152,7 @@ class UTMFileNames {
     std::string alpha;
     std::string agent_defn;
 
-public:
-
+ public:
     explicit UTMFileNames(UTMModes* m) :
         numbered_domain(m->domain_num >= 0),
         domain_num(std::to_string(m->domain_num)),
@@ -164,8 +161,7 @@ public:
         n_types(std::to_string(m->get_n_types())),
         n_sectors(std::to_string(m->get_n_sectors())),
         reward_mode(m->getRewardModeName()),
-        alpha(std::to_string(static_cast<int>(m->alpha)))
-    {
+        alpha(std::to_string(static_cast<int>(m->alpha))) {
         switch (m->_agent_defn_mode) {
         case UTMModes::AgentDefinition::LINK:
             agent_defn = "Link";

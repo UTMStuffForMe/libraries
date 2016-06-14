@@ -3,7 +3,7 @@
 //! Class that manages sectors as agents
 class SectorAgentManager : public IAgentManager {
 public:
-    SectorAgentManager(std::vector<Link*> links_set, int n_types_set,
+    SectorAgentManager(std::vector<Link*> links_set, size_t n_types_set,
         std::vector<Sector*> sectors_set, UTMModes* params) :
         IAgentManager(params), n_types(n_types_set),
         links(links_set), sectors(sectors_set) {
@@ -11,21 +11,21 @@ public:
             links_toward_sector[l->target].push_back(l);
         }
     }
-    ~SectorAgentManager() {}
+    virtual ~SectorAgentManager() {}
 
     std::vector<Link*> links;  // links in the entire system
     std::map<int, std::vector<Link*> > links_toward_sector;
-    const int n_types;
+    size_t n_types;
 
     virtual matrix2d actions2weights(matrix2d agent_actions) {
         // Converts format of agent output to format of A* weights
 
         matrix2d weights = easymath::zeros(n_types, links.size());
         for (size_t i = 0; i < links.size(); i++) {
-            for (int j = 0; j < n_types; j++) {
+            for (size_t j = 0; j < n_types; j++) {
                 // type / direction combo
-                int s = links[i]->source;
-                int d = j*(n_types - 1) + links[i]->cardinal_dir;
+                size_t s = links[i]->source;
+                size_t d = j*(n_types - 1) + links[i]->cardinal_dir;
 
                 // turns into type/edge combo
                 weights[j][i] = agent_actions[s][d] * 1000.0;

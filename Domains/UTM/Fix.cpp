@@ -53,6 +53,7 @@ UAV* Fix::generate_UAV() {
     // Creates an equal number of each type;
     int type_id_set = calls%params->get_n_types();
     calls++;
+
     UAV* u = new UAV(highGraph->at(type_id_set)->get_membership(loc),
         highGraph->at(type_id_set)->get_membership(end_loc),
         static_cast<UTMModes::UAVType>(type_id_set),

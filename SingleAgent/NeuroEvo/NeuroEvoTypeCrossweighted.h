@@ -28,7 +28,7 @@ class NeuroEvoTypeCrossweighted : public NeuroEvo {
 
     ~NeuroEvoTypeCrossweighted() {}
 
-    virtual void generateNewMembers() {
+    virtual void generate_new_members() {
         // Mutate existing members to generate more
         std::list<NeuralNet*>::iterator popMember = population.begin();
         for (int i = 0; i < params->popSize; i++) {  // add k new members
@@ -40,10 +40,10 @@ class NeuroEvoTypeCrossweighted : public NeuroEvo {
         }
     }
 
-    using NeuroEvo::getAction;  // so that the overloaded base function is seen
+    using NeuroEvo::get_action;  // so that the overloaded base function is seen
 
-    matrix1d getAction(matrix2d state) {
-        matrix1d preprocessed_state(n_state_elements*n_types, 0.0);
+    Action get_action(std::vector<State> state) {
+        State preprocessed_state(n_state_elements*n_types, 0.0);
         size_t ind = 0;  // index for state;
         // freaky for loop makes math right
         for (size_t s = 0; s < n_state_elements; s++) {
@@ -55,7 +55,7 @@ class NeuroEvoTypeCrossweighted : public NeuroEvo {
                 preprocessed_state[ind++] = node_sum;
             }
         }
-        return getAction(preprocessed_state);
+        return get_action(preprocessed_state);
     }
 };
 #endif  // SINGLEAGENT_NEUROEVO_NEUROEVOTYPECROSSWEIGHTED_H_
