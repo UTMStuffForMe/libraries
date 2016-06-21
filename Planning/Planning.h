@@ -17,13 +17,13 @@ namespace detail {
 struct found_goal {};
 
 //! Defines the point when a goal is found
-template <class G>
+template <class V>
 class astar_goal_visitor : public boost::default_astar_visitor {
 public:
-    typedef typename boost::graph_traits<G>::vertex_descriptor V;
     explicit astar_goal_visitor(V goal) : m_goal(goal) {}
     astar_goal_visitor() {}
-    void examine_vertex(V u, G) {
+    template <class G>
+    void examine_vertex(V u, G&) {
         if (u == m_goal) {
             throw found_goal();
         }
@@ -60,11 +60,11 @@ auto get_euclidean_heuristic(G* funcs, Gbase g, V v) {
 template<class G, class Gbase, class V>
 auto get_params(G* GraphWrapper, const Gbase&, const V& goal) {
     GraphWrapper->pred_pmap = boost::associative_property_map<G::pred_map>(GraphWrapper->predecessor);
-
+    
     return boost::weight_map(GraphWrapper->weight)
         .predecessor_map(GraphWrapper->pred_pmap)
         .distance_map(GraphWrapper->dist_pmap)
-        .visitor(detail::astar_goal_visitor<Gbase>(goal));
+        .visitor(detail::astar_goal_visitor<V>(goal));
 }
 
 }  // namespace detail
@@ -74,17 +74,20 @@ std::list<V> astar(G* g, V start, V goal) {
     auto s = g->get_descriptor(start);
     auto e = g->get_descriptor(goal);
     auto h = detail::get_euclidean_heuristic(g, g->g, e);
-    auto p = detail::get_params<G>(g,g->g, e);
+
+    g->pred_pmap = boost::associative_property_map<G::pred_map>(g->predecessor);
+    g->dist_pmap = boost::associative_property_map<G::dist_map>(g->distance);
+    auto p = predecessor_map(g->pred_pmap).distance_map(g->dist_pmap).visitor(Planning::detail::astar_goal_visitor<G::vertex_descriptor>(goal));
 
     std::list<V> solution;
     try {
         boost::astar_search(g->g, s, h, p);
     }
     catch (detail::found_goal) {
-        for (auto u = e; ; u = g->predecessor.at(u)) {
+        for (auto u = e; ; u = g->pred_pmap[u]) {
             V val = g->get_vertex_base(u);
             solution.push_back(val);
-            if (u == g->predecessor.at(u))
+            if (u == g->pred_pmap[u])
                 break;
         }
         std::reverse(solution.begin(), solution.end());

@@ -96,8 +96,7 @@ matrix1d LinkGraph::get_weights() const{
 void LinkGraph::print_graph(string file_path) {
     matrix2d connections_matrix = zeros(locations.size(), locations.size());
 
-    edge_iter ei, ei_end;
-    for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
+    for (auto ei = edges(g).first; ei != edges(g).second; ++ei) {
         connections_matrix[(*ei).m_source][(*ei).m_target] = true;
     }
 
@@ -145,8 +144,9 @@ bool LinkGraph::intersects_existing_edge(edge candidate) {
     return false;
 }
 
-int LinkGraph::get_direction(size_t m1, size_t m2) const {
+size_t LinkGraph::get_direction(size_t m1, size_t m2) const {
     XY a = get_vertex_loc(m1);
     XY b = get_vertex_loc(m2);
     return cardinal_direction(a - b);
 }
+

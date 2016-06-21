@@ -44,6 +44,15 @@ class LinkGraph : public LinkBase {
     double get_x(vertex_descriptor v) {
             return locations[v].x;
     }
+
+    double get_path_cost(std::list<vertex_descriptor> p) {
+        double c = 0;
+        for (auto v = p.begin(); std::next(v) != p.end(); v++) {
+            auto e = boost::edge(*v, *std::next(v),g).first;
+            c += get(boost::edge_weight, g, e);
+        }
+        return c;
+    }
     double get_y(vertex_descriptor v) { return locations[v].y; }
 
     typedef boost::graph_traits<mygraph_t>::edge_iterator edge_iter;
@@ -72,14 +81,14 @@ class LinkGraph : public LinkBase {
     //! Accessor functions
     size_t get_n_vertices() const { return locations.size(); }
     size_t get_n_edges() const { return num_edges(g); }
-    easymath::XY get_vertex_loc(size_t vID) const { return locations.at(vID); }
-    size_t get_membership(easymath::XY pt) const { return loc2mem.at(pt); }
+    inline easymath::XY get_vertex_loc(size_t vID) const { return locations.at(vID); }
+    inline size_t get_membership(easymath::XY pt) const { return loc2mem.at(pt); }
     matrix1d get_weights() const;
     std::vector<edge> get_edges() const;
-    std::vector<easymath::XY> get_locations() const { return locations; }
+    inline std::vector<easymath::XY> get_locations() const { return locations; }
     void set_weights(matrix1d weights);
 
-    int get_direction(size_t m1, size_t m2) const;
+    size_t get_direction(size_t m1, size_t m2) const;
 
     //! Printout
     void print_graph(std::string file_path);
