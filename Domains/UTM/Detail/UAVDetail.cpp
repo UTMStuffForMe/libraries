@@ -36,8 +36,7 @@ void UAVDetail::planDetailPath() {
     XY next_loc = highGraph->get_vertex_loc(get_next_sector());
 
     if (next_sector != cur_sector) { // if not an internal link
-        list<XY> low_path = Planning::astar<GridGraph, easymath::XY>
-            (lowGraph, loc, next_loc);
+        list<XY> low_path = Planning::astar(lowGraph, loc, next_loc);
 
         // Add to target waypoints
         clear(&target_waypoints);

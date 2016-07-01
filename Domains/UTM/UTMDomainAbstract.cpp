@@ -30,9 +30,9 @@ UTMDomainAbstract::UTMDomainAbstract(UTMModes* params_set, bool):
     // Variables to fill 
     vector<edge> edges;
     vector<XY> locs;
-    if (params->_airspace_mode == UTMModes::AirspaceMode::SAVED && FileIn::file_exists(efile)) {
-        edges = FileIn::read_pairs<edge>(efile);
-        locs = FileIn::read_pairs<XY>(vfile);
+    if (params->_airspace_mode == UTMModes::AirspaceMode::SAVED && easyio::file_exists(efile)) {
+        edges = easyio::read_pairs<edge>(efile);
+        locs = easyio::read_pairs<XY>(vfile);
 
         LinkGraph* base = new LinkGraph(locs, edges);
         highGraph = new MultiGraph<LinkGraph>(n_types, base);

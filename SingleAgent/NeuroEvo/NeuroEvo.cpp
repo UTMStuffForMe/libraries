@@ -133,7 +133,7 @@ void NeuroEvo::save(std::string fileout) {
 }
 
 void NeuroEvo::load(std::string filein) {
-    matrix2d netinfo = FileIn::read2<double>(filein);
+    matrix2d netinfo = easyio::read2<double>(filein);
 
     int i = 0;
     for (NeuralNet* p : population) {

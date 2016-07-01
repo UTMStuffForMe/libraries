@@ -79,7 +79,7 @@ NeuralNet::NeuralNet(int nInputs, int nHidden, int nOutputs, double
 
 void NeuralNet::load(string filein) {
     // loads neural net specs
-    matrix2d wts = FileIn::read2<double>(filein);
+    matrix2d wts = easyio::read2<double>(filein);
 
     // CURRENTLY HARDCODED TO ONLY ALLOW A SINGLE LAYER
 

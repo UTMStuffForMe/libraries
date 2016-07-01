@@ -77,7 +77,8 @@ std::list<V> astar(G* g, V start, V goal) {
 
     g->pred_pmap = boost::associative_property_map<G::pred_map>(g->predecessor);
     g->dist_pmap = boost::associative_property_map<G::dist_map>(g->distance);
-    auto p = predecessor_map(g->pred_pmap).distance_map(g->dist_pmap).visitor(Planning::detail::astar_goal_visitor<G::vertex_descriptor>(goal));
+    auto gv = Planning::detail::astar_goal_visitor<G::vertex_descriptor>(e);
+    auto p = predecessor_map(g->pred_pmap).distance_map(g->dist_pmap).visitor(gv);
 
     std::list<V> solution;
     try {

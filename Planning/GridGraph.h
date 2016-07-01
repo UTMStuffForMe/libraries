@@ -64,10 +64,9 @@ class GridGraph : public GridBase {
     }
 
 
-    typedef boost::unordered_set<vertex_descriptor, vertex_hash,vertex_equal> vertex_set;
-    typedef boost::vertex_subset_complement_filter<grid, vertex_set>
-        ::type filtered_grid;
-
+    typedef boost::unordered_set<vertex_descriptor, vertex_hash, vertex_equal> vertex_set;
+    typedef boost::vertex_subset_complement_filter<grid, vertex_set>::type filtered_grid;
+    
     vertex_descriptor get_descriptor(easymath::XY pt) {
         return{ static_cast<size_t>(pt.x), static_cast<size_t>(pt.y) };
     }

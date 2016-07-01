@@ -14,7 +14,7 @@ UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
     UTMDomainAbstract(params_set, true) {
 
     matrix2d membership_map =
-        FileIn::read2<double>("agent_map/membership_map.csv");
+        easyio::read2<double>("agent_map/membership_map.csv");
 
     // Planning
     GridGraph* base = new GridGraph(membership_map);
