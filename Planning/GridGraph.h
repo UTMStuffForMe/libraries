@@ -28,7 +28,6 @@
 */
 typedef boost::grid_graph<2> grid;
 
-
 // A hash function for vertices.
 struct vertex_hash :std::unary_function<grid::vertex_descriptor, std::size_t> {
     std::size_t operator()(grid::vertex_descriptor const& u) const {
@@ -58,7 +57,7 @@ class GridGraph : public GridBase {
     typedef typename GridBase::vertex_descriptor vertex_descriptor;
     typedef typename GridBase::dist_map dist_map;
     typedef typename GridBase::pred_map pred_map;
- 
+
     GridGraph & operator =(const GridGraph &) {
         return *this;
     }
@@ -66,16 +65,17 @@ class GridGraph : public GridBase {
 
     typedef boost::unordered_set<vertex_descriptor, vertex_hash, vertex_equal> vertex_set;
     typedef boost::vertex_subset_complement_filter<grid, vertex_set>::type filtered_grid;
-    
+
     vertex_descriptor get_descriptor(easymath::XY pt) {
         return{ static_cast<size_t>(pt.x), static_cast<size_t>(pt.y) };
     }
     easymath::XY get_vertex_base(vertex_descriptor v) {
-        return easymath::XY(static_cast<double>(v[0]), static_cast<double>(v[1])); }
+        return easymath::XY(static_cast<double>(v[0]), static_cast<double>(v[1]));
+    }
     double get_x(vertex_descriptor v) { return static_cast<double>(v[0]); }
     double get_y(vertex_descriptor v) { return static_cast<double>(v[1]); }
 
-    typedef std::pair<size_t,size_t> edge;
+    typedef std::pair<size_t, size_t> edge;
     typedef std::vector<std::vector<bool> > barrier_grid;
 
 
@@ -100,7 +100,7 @@ class GridGraph : public GridBase {
     //! The underlying AStarGrid grid with barrier vertices filtered out
     filtered_grid g;
 
-    GridGraph(): GridGraph(easymath::zeros(1,1)) {}
+    GridGraph() : GridGraph(easymath::zeros(1, 1)) {}
 
     explicit GridGraph(const matrix2d &members);
     virtual ~GridGraph() {}
@@ -109,8 +109,9 @@ class GridGraph : public GridBase {
     void occlude_nonmembers(int m1, int m2);
 
     // Accessor functions
-    const int get_membership(easymath::XY p){
+    const int get_membership(easymath::XY p) {
         return static_cast<int>(
-        members[static_cast<size_t>(p.x)][static_cast<size_t>(p.y)]); }
+            members[static_cast<size_t>(p.x)][static_cast<size_t>(p.y)]);
+    }
 };
 #endif  // PLANNING_GRIDGRAPH_H_

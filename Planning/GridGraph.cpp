@@ -1,14 +1,12 @@
 // Copyright 2016 Carrie Rebhuhn
 #include "GridGraph.h"
 
-// This is just beign added on 5/27.. So far it's been untracked. Thsi is the correct version.
-
 using std::vector;
 using easymath::XY;
 using easymath::operator <;
 
 GridGraph::GridGraph(barrier_grid obstacle_map) : GridBase(),
-    m_grid(create_grid(obstacle_map.size(), obstacle_map[0].size())),
+m_grid(create_grid(obstacle_map.size(), obstacle_map[0].size())),
     g(create_barrier_grid()) {
     /**
     * This map shows all grid cells except those in obstacle_map as passable.
@@ -27,7 +25,7 @@ GridGraph::GridGraph(barrier_grid obstacle_map) : GridBase(),
     }
 }
 
-GridGraph::GridGraph(const matrix2d &members_set) : GridGraph(members_set<0){
+GridGraph::GridGraph(const matrix2d &members_set) : GridGraph(members_set < 0) {
     members = members_set;
 }
 

@@ -37,7 +37,6 @@ void UAVDetail::planDetailPath() {
 
     if (next_sector != cur_sector) { // if not an internal link
         list<XY> low_path = Planning::astar(lowGraph, loc, next_loc);
-
         // Add to target waypoints
         clear(&target_waypoints);
         for (XY i : low_path)

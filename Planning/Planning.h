@@ -75,10 +75,11 @@ std::list<V> astar(G* g, V start, V goal) {
     auto e = g->get_descriptor(goal);
     auto h = detail::get_euclidean_heuristic(g, g->g, e);
 
-    g->pred_pmap = boost::associative_property_map<G::pred_map>(g->predecessor);
-    g->dist_pmap = boost::associative_property_map<G::dist_map>(g->distance);
+    // initializes and resets the predecessor maps
+    g->init_pmaps();
+
     auto gv = Planning::detail::astar_goal_visitor<G::vertex_descriptor>(e);
-    auto p = predecessor_map(g->pred_pmap).distance_map(g->dist_pmap).visitor(gv);
+    auto p = boost::weight_map(g->weight).predecessor_map(g->pred_pmap).distance_map(g->dist_pmap).visitor(gv);
 
     std::list<V> solution;
     try {
