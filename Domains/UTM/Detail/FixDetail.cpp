@@ -33,3 +33,29 @@ UAVDetail* FixDetail::generate_UAV() {
     return new UAVDetail(loc, end_loc, static_cast<UTMModes::UAVType>(type_id_set), high, params, low);
 }
 
+list<UAVDetail*> FixDetail::regenerate_UAVs(int step) {
+	list<UAVDetail*> new_traffic;
+	if (should_generate_UAV(step)) {
+		// For all UAVs that have reached their goal here (this fix)
+		for (UAVDetail* us : *UAVs_stationed) {			
+			XY end_loc;
+			if (ID == 0)
+				end_loc = destination_locs.back();
+			else
+				end_loc = destination_locs.at(ID - 1);  // go to previous
+
+			// This means that if more than one UAV is being regenerated,
+			// they'll have the same destination... Will this be a problem?
+
+			us->set_end_loc(end_loc);
+			// This is important :) -B
+			us->planAbstractPath();
+			new_traffic.push_back(us);
+		}
+		// Maybe we should clear this in the domain?
+		UAVs_stationed->clear();
+	}
+	
+	return new_traffic;
+}
+

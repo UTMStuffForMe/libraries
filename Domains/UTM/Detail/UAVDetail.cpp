@@ -18,7 +18,11 @@ UAVDetail::UAVDetail(XY start_loc, XY end_loc, UTMModes::UAVType t,
 }
 
 void UAVDetail::planAbstractPath() {
-    cur_sector = get_cur_sector();
+	//cur_sector = get_cur_sector();
+
+    // if this is called in try_to_move, it will change cur_sector back to what it was
+	// after link.add() changed it
+	cur_sector = (cur_sector != next_sector) ? get_cur_sector() : cur_sector;
     sectors_touched.insert(cur_sector);
 
     if (params->_search_type_mode == UTMModes::SearchDefinition::ASTAR){
@@ -40,7 +44,8 @@ void UAVDetail::planDetailPath() {
         // Add to target waypoints
         clear(&target_waypoints);
         for (XY i : low_path)
-            target_waypoints.push_front(i);
+			// Carrie! I changed this to push back because I was getting teleporting UAVs
+            target_waypoints.push_back(i);
         target_waypoints.pop_front();  // removes current location from target
         
      }
@@ -52,6 +57,8 @@ void UAVDetail::moveTowardNextWaypoint() {
         loc = target_waypoints.front();
         target_waypoints.pop_front();
     }
+
+	cur_sector = get_cur_sector();
 }
 
 bool UAVDetail::at_boundary() {
@@ -66,4 +73,12 @@ bool UAVDetail::at_boundary() {
         int m2 = lowGraph->get_membership(second_pt);
         return (m1 != m2);
     }
+}
+
+// Carrie! Need this to give regenerated UAVs a new goal location.
+// If you wanna better way to do this, suggestions welcome.
+void UAVDetail::set_end_loc(XY loc) {
+	end_loc = loc;
+	// This is a side effect.
+	end_sector = lowGraph->get_membership(loc);
 }

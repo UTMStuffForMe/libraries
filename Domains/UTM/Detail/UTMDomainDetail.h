@@ -62,7 +62,7 @@ class UTMDomainDetail : public UTMDomainAbstract {
     //~ C+B
     virtual void simulateStep(matrix2d agent_actions) {
         UTMDomainAbstract::simulateStep(agent_actions);
-        //exportUAVLocations(neural_net_ID);
+        logUAVLocations();
     }
 };
 #endif  // DOMAINS_UTM_UTMDOMAINDETAIL_H_

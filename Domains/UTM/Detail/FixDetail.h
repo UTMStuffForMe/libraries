@@ -22,6 +22,8 @@ public:
     virtual bool atDestinationFix(const UAVDetail &u);
     std::list<UAVDetail*> * UAVs_stationed;
 
+	// used for when UTMModes::DisposalMode is set to KEEP
+	std::list<UAVDetail*> regenerate_UAVs(int step);
 private:
 
     //! Creates a new UAV in the world

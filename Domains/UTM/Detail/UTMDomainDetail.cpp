@@ -29,6 +29,11 @@ UTMDomainDetail::UTMDomainDetail(UTMModes* params_set) :
     for (size_t i = 0; i < params->n_sectors; i++)
         sectors.push_back(new SectorDetail(sector_locs[i], i, connections[i],
             sector_locs, highGraph, lowGraph, params, &UAVs_done[i]));
+
+	// This is assuming there is one fix. If there's more and we need to keep track
+	// of "done" UAVs, well... Guess we'll have to come up with something else
+	for (int s = 0; s < params->n_sectors; s++)
+		sectors[s]->generation_pt->UAVs_stationed = &UAVs_done[s];
 }
 
 
@@ -38,21 +43,13 @@ void UTMDomainDetail::logUAVLocations() {
     list<UAVDetail*> all_UAVs = UAVs;
     for (size_t s = 0; s < params->n_sectors; s++) {
         for (UAVDetail *ud : UAVs_done[s]) {
-            // the UAV
-            std::list<UAVDetail*>::iterator successor = std::find_if(all_UAVs.begin(), all_UAVs.end(), [ud](UAV* u) {
-                if (u->ID > ud->ID)
-                    return true;
-                else
-                    return false;
-            });
-
-            if (successor == all_UAVs.end())
-                all_UAVs.push_back(ud);
-            else
-                all_UAVs.insert(successor, ud);
+			all_UAVs.push_back(ud);
         }
-
     }
+	// Create a lambda function to compare UAVs by ID
+	auto ID_cmp = [](UAV* a, UAV* b) { return a->ID < b->ID; };
+	// sort by ID so that UAVs are listed in csv as such
+	all_UAVs.sort(ID_cmp);
 
     for (UAVDetail* u : all_UAVs) {
         stepLocation.push_back(u->get_location().x);
@@ -106,33 +103,27 @@ size_t UTMDomainDetail::getSector(easymath::XY p) {
 // HACK: ONLY GET PATH PLANS OF UAVS just generated
 void UTMDomainDetail::getPathPlans() {
     // REPLACE WITH PLANPATH
-    //~B
+    // TO WHOMEVER READS THIS CODE: The code below was implemented in 
+	// a previous version (a decent amount of time ago). If you have problems with
+	// UAV/robot path planning, looking here for problems might be helpful.
+	// Now that UAV path execution is (mostly) working, I didn't want to break it
+	// again by changing stuff here. ~B
     for (UAVDetail* u : UAVs) {
         // sets own next waypoint
         u->planAbstractPath(); // plan the abstract path to see if path has changed
 
-//        if (u->committed_to_link) {
-            bool hasPlan = u->has_detail_plan();
-            bool newSector = u->next_sector_ID == u->cur_sector_ID;
-            int next_link = linkIDs->at(edge(u->get_cur_sector(), u->get_next_sector()));
-            //bool internalLink = u->cur_link_ID < params->n_links && u->next_link_ID >= params->n_links; // weird logic: moved to UAV
-            bool internalLink = u->on_internal_link(next_link);
+		bool hasPlan = u->has_detail_plan();
+		bool newSector = u->get_next_sector() == u->get_cur_sector();
+		int next_link = linkIDs->at(edge(u->get_cur_sector(), u->get_next_sector()));
+		bool internalLink = u->on_internal_link(next_link);
 
-            if (!hasPlan)
-                u->planDetailPath();
+		if (!hasPlan)
+			u->planDetailPath();
 
-            if (newSector && !internalLink) {
-                // Kinda hacky. I'm not sure where else I'm going wrong, so I had to do it. :(
-                    //u->mem = u->cur_sector_ID;
-                u->planDetailPath();
-
-            }
-  //      }
-        //} else if (u->pathChanged) {
-            //u->planDetailPath();
-
-//    } else { /* do nothing */ }
-}
+		if (newSector && !internalLink) {
+			u->planDetailPath();
+        }
+	}
 }
 
 void UTMDomainDetail::getPathPlans(const list<UAVDetail* > &new_UAVs) {
@@ -152,15 +143,21 @@ void UTMDomainDetail::incrementUAVPath() {
     vector<UAVDetail*> eligible;  // UAVs eligible to move to next link
     
     copy_if(UAVs.begin(), UAVs.end(), back_inserter(eligible), [](UAVDetail* u) {
+		// in case UAV had to wait the previous time step, reset delayed bool to false
+		// we'll set it back again if it has to wait again
+		u->delayed = false;
         return u->at_boundary();  // Copy if about to transition between sectors
     });
 
     if (!eligible.empty()) {
         try_to_move(&eligible);
+		// UAVs that could not be added to a link are still in eligible
         for (UAVDetail* u : eligible) {
             agents->add_delay(u);
             int n = u->get_cur_sector();
             numUAVsAtSector[n]++;
+			// This UAV must wait
+			u->delayed = true;
 
             // counterfactuals
             if (params->_reward_mode == UTMModes::RewardMode::DIFFERENCE_AVG)
@@ -175,7 +172,11 @@ void UTMDomainDetail::incrementUAVPath() {
     }
 
     for (UAVDetail* u : UAVs)
-        u->moveTowardNextWaypoint();
+	{
+		// for all UAVs not waiting, allow them to move
+		if (!u->delayed)
+			u->moveTowardNextWaypoint();
+	}
 
 }
 
@@ -212,7 +213,9 @@ void UTMDomainDetail::try_to_move(vector<UAVDetail*> * eligible_to_move) {
         eligible_to_move->erase(
             remove_if(eligible_to_move->begin(), eligible_to_move->end(),
                 [L, ids](UAVDetail* u) {
-            int n = ids->at(edge(u->get_cur_sector(), u->get_next_sector()));
+			int ns1 = u->get_next_sector();
+			int ns2 = u->get_nth_sector(2);
+			int n = ids->at(edge(ns1,ns2));
             int c = u->get_cur_link();
             int t = u->get_type();
             if (!L[n]->at_capacity(t)) {
@@ -258,6 +261,7 @@ void UTMDomainDetail::absorbUAVTraffic() {
     bool keep = params->_disposal_mode == UTMModes::DisposalMode::KEEP ? true : false;
     if (keep) { // remove UAVs from the domain, but keep track of where they were for later
               // THIS IS ASSUMING 1 FIX PER SECTOR
+		// check each sector for UAVs that have reached goal
         for (size_t s = 0; s < params->n_sectors; s++)
         {
             // points to next UAV that has reached it's goal
@@ -265,13 +269,15 @@ void UTMDomainDetail::absorbUAVTraffic() {
             while (true)
             {
                 done = find_if(UAVs.begin(), UAVs.end(), [l, S, s](UAVDetail *u) {
+					if (s != u->get_cur_sector()) return false;
                     if (u->at_terminal_link() && u->at_link_end()) {
-                        FixDetail* fix = S[u->get_cur_sector()]->generation_pt; // note: may want to move this to internal to fixes, for now making generation pt public
+                        FixDetail* fix = S[s]->generation_pt; // note: may want to move this to internal to fixes, for now making generation pt public
                         if (fix->atDestinationFix(*u)) {
                             l[u->get_cur_link()]->remove(u);
                             return true;
 
                         } else {
+							// This UAV has not reached goal.
                             return false;
 
                         }
@@ -280,8 +286,10 @@ void UTMDomainDetail::absorbUAVTraffic() {
                     return false;
                 });
                 if (done == UAVs.end())
+					// means it didn't find a(nother) UAV in sector s that reached goal
                     break;
                 else
+					// move UAV from active UAVs list to "done" UAV list
                     UAVs_done[s].splice(UAVs_done[s].begin(), UAVs, done, std::next(done));
             }
         }
@@ -310,10 +318,28 @@ void UTMDomainDetail::absorbUAVTraffic() {
 
 void UTMDomainDetail::getNewUAVTraffic() {
     for (SectorDetail* s : sectors) {
+		std::list<UAVDetail*> newTraffic;
+
+		// Regenerate UAVs that have reached their goal if necessary.
+		if (params->_disposal_mode == UTMModes::DisposalMode::KEEP) {
+			newTraffic = s->generation_pt->regenerate_UAVs(*step);
+		}
+
         UAVDetail* u = s->generation_pt->generate_UAV(*step);
-        if (u == NULL) continue;
+        if (u != NULL)
+			// This consists of all regenerated UAVs plus another generated one.
+			newTraffic.push_back(u);
         
-        links.at(u->get_cur_link())->add(u);
-        UAVs.push_back(u);
+		for (UAVDetail* u : newTraffic) {
+			// Carrie! I copied some of this from UTMDomainAbstract
+			// 	I thought it made sense to put it here, but maybe not
+			// UAV initially does not have its current link set -- must define from sector pair
+			edge u_start_edge = edge(u->get_cur_sector(), u->get_next_sector());
+			u->set_cur_link_ID(linkIDs->at(u_start_edge));
+			links.at(u->get_cur_link())->add(u);
+			// Otherwise UAVs might not move EVER. They'll never reach a boundary!
+			u->planDetailPath();
+			UAVs.push_back(u);
+		}
     }
 }

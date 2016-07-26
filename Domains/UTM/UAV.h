@@ -31,7 +31,9 @@ protected:
     const UTMModes* params;
     const size_t type_ID;
     const double speed;  // connected to type_ID
-    const size_t end_sector;
+	// Carrie! I had to make this un-const. Can't give a UAV a new goal if it's end_sector can't be reset.
+	// If there's a better way to do this, I'm fine with that. ~B
+    size_t end_sector;
     LinkGraph* highGraph;  //! shared with the simulator (for now)--non-constant subfunctions
 
     // Non-constant
@@ -70,7 +72,9 @@ public:
     int get_travel_direction() const { return highGraph->get_direction(cur_sector, get_next_sector()); }
     int get_wait() const { return t; }
     size_t get_next_sector() const { return get_nth_sector(1); }
-    size_t get_nth_sector(int n) const { return *std::next(high_path.begin(), n); } // zero indexed
+	// Carrie! I had to change this slightly for detailed sim. If I remember correctly, it was throwing errors because sometimes iterator was invalid
+	//  Maybe it's not really needed. (Sorry, it was a while ago, memory's fuzzy)
+    size_t get_nth_sector(int n) const { return high_path.size() > n ? *std::next(high_path.begin(), n) : *std::next(high_path.begin(), high_path.size() - 1); } // zero indexed
     bool link_touched(size_t lID) const { return links_touched.count(lID) > 0; }
 
 
@@ -89,6 +93,7 @@ public:
     }
     void decrement_wait() { t--; }
 
+	// Carrie! I don't need these anymore if that's what you left them here for
     size_t next_sector_ID; // This gets updated after UAV moves
     size_t cur_sector_ID; // for debugging
 };

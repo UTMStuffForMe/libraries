@@ -25,6 +25,9 @@ public:
     bool on_internal_link(size_t next_link_ID) { return cur_link_ID < params->n_links && next_link_ID >= params->n_links; }
     double distance_to(easymath::XY l) const { return easymath::euclidean_distance(loc, l); }
 
+	// Whether or not UAV needs to wait until it can join link
+	bool delayed;
+
     // Regular accessors
     easymath::XY get_location() { return loc; }
     //! Gets the sector ID from the current location
@@ -34,6 +37,8 @@ public:
     virtual void planAbstractPath();
     void planDetailPath();
     void moveTowardNextWaypoint();
+
+	void set_end_loc(easymath::XY loc);
 
 private:
     //! Physical UAV location
